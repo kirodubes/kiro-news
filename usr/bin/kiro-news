@@ -261,7 +261,9 @@ HTML
                     "$(printf '%s' "$link"  | html_escape)" \
                     "$(printf '%s' "$title" | html_escape)" \
                     "$(printf '%s' "$date"  | html_escape)"
-                [[ -n "$summary" ]] && printf '<div class="summary">%s</div>' "$(printf '%s' "$summary" | html_escape)"
+                # Summary may contain light inline HTML (<strong>, <em>) — the feed
+                # is shipped in the package, so it's trusted content, not escaped.
+                [[ -n "$summary" ]] && printf '<div class="summary">%s</div>' "$summary"
                 echo "</li>"
             done <<< "$items"
             echo "</ul>"

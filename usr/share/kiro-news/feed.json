@@ -3,7 +3,7 @@
     {
       "id": "2026-06-13-aur-incident",
       "title": "Kiro is not affected by the AUR malicious-packages incident",
-      "summary": "Arch has posted a security advisory about a wave of malicious package uploads to the AUR. Kiro is not affected: its installer and tooling install packages only from the official Arch repositories and from chaotic-aur (a signed, centrally-built binary repo). Nothing Kiro ships pulls or builds packages straight from the AUR, and we audited our install scripts after the advisory with no exposure. If you install AUR packages yourself with yay, paru, or by hand, the usual Arch advice applies: review every PKGBUILD and .install script before you build, especially right now. The AUR is user-submitted and unsigned, so that trust step is always yours. There is nothing you need to do on Kiro itself.",
+      "summary": "Arch has posted a security advisory about a wave of malicious package uploads to the AUR. <strong>Kiro is not affected:</strong> its installer and tooling install packages only from the official Arch repositories and from chaotic-aur (a signed, centrally-built binary repo). Nothing Kiro ships pulls or builds packages straight from the AUR, and we audited our install scripts after the advisory with no exposure. If you install AUR packages yourself with yay, paru, or by hand, the usual Arch advice applies: <strong>review every PKGBUILD and .install script before you build</strong>, especially right now. The AUR is user-submitted and unsigned, so that trust step is always yours. <strong>There is nothing you need to do on Kiro itself.</strong>",
       "url": "https://archlinux.org/news/active-aur-malicious-packages-incident/",
       "date": "2026-06-13"
     }

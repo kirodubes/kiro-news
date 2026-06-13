@@ -38,6 +38,12 @@
   `-Syu`. (The icon was never the problem — `rss` resolves via `neo-candy-icons`
   → BeautyLine inheritance.)
 
+- Feed items support a `summary` field with **light inline HTML** (`<strong>`,
+  `<em>`) rendered in the `show` view — the feed ships in the package, so it's
+  trusted content and not escaped. The AUR-incident message now bolds the key
+  reassurances ("Kiro is not affected", "review every PKGBUILD…", "nothing you
+  need to do on Kiro itself").
+
 ### Technical Details
 - One client (`/usr/bin/kiro-news`) reads `/etc/kiro-news/sources.conf`
   (`id|type|url|name|verify`), polls each source, and notifies on the newest
