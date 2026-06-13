@@ -29,6 +29,15 @@
 - Reaches existing installs via package update (no reinstall): once in
   nemesis_repo, `kiro-system-files` will depend on `kiro-news`.
 
+### Verified
+- Trial-built from the local repo (`git+file://`) and installed with `pacman -U`
+  on the hq box. The `informant` pre-transaction hook **blocked the first
+  install** over 10 unread Arch news items — live proof the upgrade gate works;
+  cleared with `informant read`, install then succeeded.
+- Timer auto-enabled via the shipped symlink (`is-enabled` → enabled); service
+  ran `Result=success`; desktop toast fired and was confirmed on screen. The
+  `edu-` prototype timer was disabled to avoid double toasts.
+
 ### Files Modified
 - `usr/bin/kiro-news`
 - `etc/kiro-news/sources.conf`
