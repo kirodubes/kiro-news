@@ -61,6 +61,22 @@ html_escape() {
     sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g'
 }
 
+# Fetch a source body. A local path (or file://) is read straight off disk —
+# Kiro's own feed ships inside this package at /usr/share/kiro-news/feed.json
+# and is updated by updating the package, so it's always present and trusted
+# (package authenticity is the trust boundary; no network, no separate signing).
+# Anything else is fetched over HTTPS. Returns non-zero if unavailable.
+fetch_body() {
+    local url="$1" path
+    if [[ "$url" == /* || "$url" == file://* ]]; then
+        path="${url#file://}"
+        [[ -r "$path" ]] || return 1
+        cat "$path"
+    else
+        curl -fsSL --max-time 20 "$url" 2>/dev/null || return 1
+    fi
+}
+
 # Parse the newest <item> of an RSS feed. Emits "guid<TAB>title<TAB>link".
 parse_rss() {
     local feed="$1" item title link guid
@@ -99,11 +115,11 @@ parse_rss_items() {
     done <<< "$items"
 }
 
-# List up to N newest JSON items as "title<TAB>url<TAB>date" lines.
+# List up to N newest JSON items as "title<TAB>url<TAB>date<TAB>summary" lines.
 parse_json_items() {
     local feed="$1" n="${2:-8}"
     printf '%s' "$feed" | jq -r --argjson n "$n" \
-        '.items[:$n][] | [.title, (.url // ""), (.date // "")] | @tsv' 2>/dev/null || true
+        '.items[:$n][] | [.title, (.url // ""), (.date // ""), (.summary // "")] | @tsv' 2>/dev/null || true
 }
 
 # Verify a signed feed body against the shipped public key. The detached
@@ -149,8 +165,8 @@ process_source() {
     name="${name:-$id}"; verify="${verify:-none}"
 
     local body
-    if ! body="$(curl -fsSL --max-time 20 "$url")"; then
-        log_warn "[$id] unreachable: $url — skipping this cycle"
+    if ! body="$(fetch_body "$url")"; then
+        log_warn "[$id] unavailable: $url — skipping this cycle"
         return 0
     fi
 
@@ -215,6 +231,7 @@ h2{border-bottom:2px solid #45475a;padding-bottom:.3rem;margin-top:2rem;color:#8
 ul{list-style:none;padding:0}li{margin:.6rem 0}
 a{color:#cdd6f4;text-decoration:none}a:hover{color:#a6e3a1}
 .date{color:#9399b2;font-size:.82em;margin-left:.4rem}.muted{color:#9399b2}
+.summary{color:#bac2de;font-size:.9em;margin:.2rem 0 .8rem}
 </style></head><body><h1>Kiro &amp; Arch news</h1>
 HTML
         local line id type url name verify body items title link date
@@ -225,7 +242,7 @@ HTML
             IFS='|' read -r id type url name verify <<< "$line"
             name="${name:-$id}"; verify="${verify:-none}"
             echo "<h2>$(printf '%s' "$name" | html_escape)</h2>"
-            if ! body="$(curl -fsSL --max-time 20 "$url" 2>/dev/null)"; then
+            if ! body="$(fetch_body "$url")"; then
                 echo '<p class="muted">Unavailable right now.</p>'; continue
             fi
             if [[ "$verify" == "signed" ]]; then
@@ -238,12 +255,14 @@ HTML
             esac
             [[ -z "$items" ]] && { echo '<p class="muted">No items.</p>'; continue; }
             echo "<ul>"
-            while IFS=$'\t' read -r title link date; do
+            while IFS=$'\t' read -r title link date summary; do
                 [[ -z "$title" ]] && continue
-                printf '<li><a href="%s">%s</a><span class="date">%s</span></li>\n' \
+                printf '<li><a href="%s">%s</a><span class="date">%s</span>' \
                     "$(printf '%s' "$link"  | html_escape)" \
                     "$(printf '%s' "$title" | html_escape)" \
                     "$(printf '%s' "$date"  | html_escape)"
+                [[ -n "$summary" ]] && printf '<div class="summary">%s</div>' "$(printf '%s' "$summary" | html_escape)"
+                echo "</li>"
             done <<< "$items"
             echo "</ul>"
         done < "$CONFIG_FILE"

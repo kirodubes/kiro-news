@@ -4,31 +4,25 @@ In-system news notifier for Kiro. Polls one or more sources and shows a
 desktop notification when a source has a new headline — DE-agnostic (XFCE,
 every TWM), runs on a per-user systemd timer, no server.
 
-Two source types (`/etc/kiro-news/sources.conf`):
+Sources are defined in `/etc/kiro-news/sources.conf` (`id|type|url|name|verify`):
 
-| type | trust | use |
-|------|-------|-----|
-| `rss`  | HTTPS, display-only | feeds we consume but don't own (Arch Linux news) |
-| `json` | **minisign-signed**, verified before display | Kiro's own announcements |
+| source | type | location | use |
+|--------|------|----------|-----|
+| Arch Linux News | `rss` | HTTPS (`archlinux.org`) | upstream news we consume but don't own |
+| Kiro News | `json` | **local file in this package** (`/usr/share/kiro-news/feed.json`) | Kiro's own announcements |
 
-Kiro's own feed is a static signed file published on the website; the client
-verifies it against the public key shipped at `/usr/share/kiro-news/kiro.pub`
-before showing anything, so a forged "Kiro says ..." message is never displayed.
-One unreachable or malformed source never aborts the others.
+**Kiro's own feed ships *inside this package*** — it is not fetched from any
+website. The package is the trust boundary: `feed.json` is exactly as trusted as
+`/usr/bin/kiro-news` itself (and is covered automatically if/when nemesis_repo
+packages get signed). No network, no separate feed-signing key. One unreachable
+or malformed source never aborts the others.
 
-## Status
+## Publishing a Kiro message
 
-- **Arch news** — live and working.
-- **Kiro feed** — present in config but **inert** until the minisign keypair is
-  generated (`minisign -G`, private key kept off-repo) and the signed
-  `feed.json` + `feed.json.minisig` are published. While `kiro.pub` is absent
-  the client skips the Kiro source cleanly.
-
-## Publishing a Kiro message (once signing is enabled)
-
-1. Add an item to the top of `items` in the feed JSON.
-2. Sign it: `minisign -Sm feed.json` → `feed.json.minisig`.
-3. Deploy both files to the website.
+1. Edit `usr/share/kiro-news/feed.json` — add an item to the top of `items`
+   (`id`, `title`, `url`, `date`).
+2. Rebuild + publish the package (`build.sh` bumps pkgrel → nemesis_repo).
+3. Users receive it on their next `pacman -Syu`; the timer toasts the new item.
 
 ## Commands
 
@@ -43,5 +37,5 @@ One unreachable or malformed source never aborts the others.
 - `/usr/bin/kiro-news` — the client (`poll` + `show`)
 - `/usr/share/applications/kiro-news.desktop` — menu launcher (`Categories=X-Kiro`)
 - `/etc/kiro-news/sources.conf` — source definitions
-- `/usr/share/kiro-news/kiro.pub` — Kiro signing public key (added later)
+- `/usr/share/kiro-news/feed.json` — Kiro's own news feed (edit + republish to update)
 - `/usr/lib/systemd/user/kiro-news.{service,timer}` + auto-enable symlink

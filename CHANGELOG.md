@@ -22,6 +22,22 @@
   `Categories=X-Kiro;` so it lands in the XFCE **Kiro** submenu next to the Kiro
   link launchers. `Icon=rss` (recognizable; resolves across all shipped themes).
 
+- **Kiro feed is now shipped inside the package**, not fetched from the website
+  (design change, replaces the signed-website-feed plan). Two bugs found testing
+  the dependency arrival on fresh PCs drove this: **(1)** the XFCE menu entry was
+  missing because `kiro-dot-files`' `kiro.menu` had a `<Layout>` with explicit
+  filenames and no `<Merge type="all"/>`, so garcon showed only the 4 listed
+  links and hid `kiro-news.desktop` — fixed by adding `kiro-news.desktop` to the
+  Layout **plus** a `<Merge type="all"/>` safety net so future `X-Kiro` apps
+  can't be hidden again; **(2)** launching the client tried to read
+  `https://kiroproject.be/news/feed.json` (404). Now the Kiro source points at a
+  **local** `/usr/share/kiro-news/feed.json` shipped in the package
+  (`verify=none` — the package is the trust boundary). This also **retires the
+  minisign feed-signing** plan entirely: no website hosting, no keypair, no 404;
+  updating Kiro news = edit `feed.json` → rebuild → publish → users get it on
+  `-Syu`. (The icon was never the problem — `rss` resolves via `neo-candy-icons`
+  → BeautyLine inheritance.)
+
 ### Technical Details
 - One client (`/usr/bin/kiro-news`) reads `/etc/kiro-news/sources.conf`
   (`id|type|url|name|verify`), polls each source, and notifies on the newest
@@ -46,9 +62,11 @@
   `edu-` prototype timer was disabled to avoid double toasts.
 
 ### Files Modified
-- `usr/bin/kiro-news` (added `show` command + multi-item parsers + HTML view)
+- `usr/bin/kiro-news` (added `show` command + multi-item parsers + HTML view; `fetch_body` reads local-file sources)
 - `usr/share/applications/kiro-news.desktop` (menu launcher, `Categories=X-Kiro`, `Icon=rss`)
-- `etc/kiro-news/sources.conf`
+- `usr/share/kiro-news/feed.json` (new — Kiro's own feed, shipped in-package; replaces `README.pubkey`, removed)
+- `etc/kiro-news/sources.conf` (Kiro source → local `/usr/share/kiro-news/feed.json`, `verify=none`)
+- cross-repo: `kiro-dot-files` `kiro.menu` `<Layout>` (+`kiro-news.desktop`, +`<Merge type="all"/>`)
 - `usr/lib/systemd/user/kiro-news.service`, `kiro-news.timer`
 - `etc/systemd/user/timers.target.wants/kiro-news.timer` (symlink)
 - `usr/share/kiro-news/README.pubkey` (placeholder until `kiro.pub` exists)
