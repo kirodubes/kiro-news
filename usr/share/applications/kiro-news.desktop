@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Kiro News
+Comment=Read recent Arch Linux and Kiro news
+Exec=kiro-news show
+Icon=rss
+Terminal=false
+Categories=X-Kiro;
+Keywords=kiro;news;arch;announcements;updates;

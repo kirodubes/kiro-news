@@ -57,6 +57,10 @@ decode_entities() {
         -e "s/&#39;/'/g" -e 's/&quot;/"/g'
 }
 
+html_escape() {
+    sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g'
+}
+
 # Parse the newest <item> of an RSS feed. Emits "guid<TAB>title<TAB>link".
 parse_rss() {
     local feed="$1" item title link guid
@@ -78,6 +82,28 @@ parse_json() {
     url="$(printf '%s'   "$feed" | jq -r '.items[0].url   // empty' 2>/dev/null || true)"
     [[ -z "$title" || -z "$id" ]] && return 1
     printf '%s\t%s\t%s\n' "$id" "$title" "$url"
+}
+
+# List up to N newest RSS items as "title<TAB>link<TAB>date" lines.
+parse_rss_items() {
+    local feed="$1" n="${2:-8}" items item title link date
+    items="$(printf '%s' "$feed" | tr '\n' ' ' | grep -oP '<item>.*?</item>' | head -n "$n" || true)"
+    [[ -z "$items" ]] && return 0
+    while IFS= read -r item; do
+        [[ -z "$item" ]] && continue
+        title="$(printf '%s' "$item" | grep -oP '(?<=<title>).*?(?=</title>)'     | head -1 | decode_entities || true)"
+        link="$(printf '%s'  "$item" | grep -oP '(?<=<link>).*?(?=</link>)'       | head -1 | decode_entities || true)"
+        date="$(printf '%s'  "$item" | grep -oP '(?<=<pubDate>).*?(?=</pubDate>)' | head -1 || true)"
+        [[ -z "$title" ]] && continue
+        printf '%s\t%s\t%s\n' "$title" "$link" "$date"
+    done <<< "$items"
+}
+
+# List up to N newest JSON items as "title<TAB>url<TAB>date" lines.
+parse_json_items() {
+    local feed="$1" n="${2:-8}"
+    printf '%s' "$feed" | jq -r --argjson n "$n" \
+        '.items[:$n][] | [.title, (.url // ""), (.date // "")] | @tsv' 2>/dev/null || true
 }
 
 # Verify a signed feed body against the shipped public key. The detached
@@ -156,7 +182,7 @@ process_source() {
     log_success "[$id] notified: $title"
 }
 
-main() {
+cmd_poll() {
     mkdir -p "$CACHE_DIR"
     if [[ ! -r "$CONFIG_FILE" ]]; then
         log_error "no config at $CONFIG_FILE"
@@ -169,6 +195,74 @@ main() {
         [[ -z "$line" ]] && continue
         process_source "$line" || log_warn "source failed: $line"
     done < "$CONFIG_FILE"
+}
+
+# Build a readable HTML page of recent items from every source and open it
+# in the browser. Toasts are ephemeral; this is the re-read view.
+cmd_show() {
+    mkdir -p "$CACHE_DIR"
+    [[ -r "$CONFIG_FILE" ]] || { log_error "no config at $CONFIG_FILE"; exit 1; }
+    local out="$CACHE_DIR/news.html"
+    {
+        cat <<'HTML'
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Kiro News</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:820px;margin:2rem auto;padding:0 1rem;
+background:#1e1e2e;color:#cdd6f4;line-height:1.5}
+h1{background:linear-gradient(90deg,#89b4fa,#a6e3a1);-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;font-size:2rem}
+h2{border-bottom:2px solid #45475a;padding-bottom:.3rem;margin-top:2rem;color:#89b4fa}
+ul{list-style:none;padding:0}li{margin:.6rem 0}
+a{color:#cdd6f4;text-decoration:none}a:hover{color:#a6e3a1}
+.date{color:#9399b2;font-size:.82em;margin-left:.4rem}.muted{color:#9399b2}
+</style></head><body><h1>Kiro News</h1>
+HTML
+        local line id type url name verify body items title link date
+        while IFS= read -r line; do
+            line="${line%%#*}"
+            line="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            [[ -z "$line" ]] && continue
+            IFS='|' read -r id type url name verify <<< "$line"
+            name="${name:-$id}"; verify="${verify:-none}"
+            echo "<h2>$(printf '%s' "$name" | html_escape)</h2>"
+            if ! body="$(curl -fsSL --max-time 20 "$url" 2>/dev/null)"; then
+                echo '<p class="muted">Unavailable right now.</p>'; continue
+            fi
+            if [[ "$verify" == "signed" ]]; then
+                verify_signed "$url" "$body" >/dev/null 2>&1 || { echo '<p class="muted">Not available yet.</p>'; continue; }
+            fi
+            case "$type" in
+                rss)  items="$(parse_rss_items  "$body" 8)" ;;
+                json) items="$(parse_json_items "$body" 8)" ;;
+                *)    items="" ;;
+            esac
+            [[ -z "$items" ]] && { echo '<p class="muted">No items.</p>'; continue; }
+            echo "<ul>"
+            while IFS=$'\t' read -r title link date; do
+                [[ -z "$title" ]] && continue
+                printf '<li><a href="%s">%s</a><span class="date">%s</span></li>\n' \
+                    "$(printf '%s' "$link"  | html_escape)" \
+                    "$(printf '%s' "$title" | html_escape)" \
+                    "$(printf '%s' "$date"  | html_escape)"
+            done <<< "$items"
+            echo "</ul>"
+        done < "$CONFIG_FILE"
+        echo "</body></html>"
+    } > "$out"
+
+    if command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "$out" >/dev/null 2>&1 &
+    else
+        echo "$out"
+    fi
+}
+
+main() {
+    case "${1:-poll}" in
+        show)    cmd_show ;;
+        poll|"") cmd_poll ;;
+        *)       log_error "unknown command: $1 (use: kiro-news [poll|show])"; exit 1 ;;
+    esac
 }
 
 main "$@"

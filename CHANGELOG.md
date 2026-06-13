@@ -15,6 +15,13 @@
   "Kiro says ..." messages unsigned would recreate the supply-chain hole that
   motivated the project.
 
+- Added a **`kiro-news show`** command and a menu launcher: toasts are
+  ephemeral, so `show` opens a readable HTML page of recent items from every
+  source in the browser (consistent with the Kiro URL launchers, which also
+  `xdg-open`). Shipped as `/usr/share/applications/kiro-news.desktop` with
+  `Categories=X-Kiro;` so it lands in the XFCE **Kiro** submenu next to the Kiro
+  link launchers. `Icon=rss` (recognizable; resolves across all shipped themes).
+
 ### Technical Details
 - One client (`/usr/bin/kiro-news`) reads `/etc/kiro-news/sources.conf`
   (`id|type|url|name|verify`), polls each source, and notifies on the newest
@@ -39,7 +46,8 @@
   `edu-` prototype timer was disabled to avoid double toasts.
 
 ### Files Modified
-- `usr/bin/kiro-news`
+- `usr/bin/kiro-news` (added `show` command + multi-item parsers + HTML view)
+- `usr/share/applications/kiro-news.desktop` (menu launcher, `Categories=X-Kiro`, `Icon=rss`)
 - `etc/kiro-news/sources.conf`
 - `usr/lib/systemd/user/kiro-news.service`, `kiro-news.timer`
 - `etc/systemd/user/timers.target.wants/kiro-news.timer` (symlink)

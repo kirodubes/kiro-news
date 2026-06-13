@@ -30,9 +30,18 @@ One unreachable or malformed source never aborts the others.
 2. Sign it: `minisign -Sm feed.json` → `feed.json.minisig`.
 3. Deploy both files to the website.
 
+## Commands
+
+- `kiro-news` (or `kiro-news poll`) — the timer entry point: poll each source,
+  toast the newest unseen item.
+- `kiro-news show` — open a readable HTML page of recent items from every source
+  in the browser. Toasts are ephemeral; this is the re-read view. Exposed in the
+  XFCE menu under **Kiro** (next to the Kiro links) via the shipped `.desktop`.
+
 ## Files
 
-- `/usr/bin/kiro-news` — the client
+- `/usr/bin/kiro-news` — the client (`poll` + `show`)
+- `/usr/share/applications/kiro-news.desktop` — menu launcher (`Categories=X-Kiro`)
 - `/etc/kiro-news/sources.conf` — source definitions
 - `/usr/share/kiro-news/kiro.pub` — Kiro signing public key (added later)
 - `/usr/lib/systemd/user/kiro-news.{service,timer}` + auto-enable symlink
