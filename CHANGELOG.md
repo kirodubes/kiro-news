@@ -38,6 +38,10 @@
   `-Syu`. (The icon was never the problem — `rss` resolves via `neo-candy-icons`
   → BeautyLine inheritance.)
 
+- Published a second Kiro News post (now the newest item): an **opt-in informant**
+  message — informant is not installed by default; users who want upgrades to pause
+  on Arch news can `paru -S informant` themselves (chaotic-aur). Decided against an
+  auto-install/dependency or an ATT toggle for now — a news post is the chosen surface.
 - Feed items support a `summary` field with **light inline HTML** (`<strong>`,
   `<em>`) rendered in the `show` view — the feed ships in the package, so it's
   trusted content and not escaped. The AUR-incident message now bolds the key
