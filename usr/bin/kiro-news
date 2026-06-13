@@ -215,7 +215,7 @@ h2{border-bottom:2px solid #45475a;padding-bottom:.3rem;margin-top:2rem;color:#8
 ul{list-style:none;padding:0}li{margin:.6rem 0}
 a{color:#cdd6f4;text-decoration:none}a:hover{color:#a6e3a1}
 .date{color:#9399b2;font-size:.82em;margin-left:.4rem}.muted{color:#9399b2}
-</style></head><body><h1>Kiro News</h1>
+</style></head><body><h1>Kiro &amp; Arch news</h1>
 HTML
         local line id type url name verify body items title link date
         while IFS= read -r line; do
