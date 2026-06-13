@@ -1,0 +1,8 @@
+[Unit]
+Description=Kiro news desktop notifier (Arch + Kiro feeds)
+After=graphical-session.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/kiro-news

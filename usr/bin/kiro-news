@@ -1,0 +1,174 @@
+#!/bin/bash
+set -euo pipefail
+
+#####################################################################
+# Author  : Erik Dubois
+# Website : https://kiroproject.be
+#
+# DO NOT JUST RUN THIS. EXAMINE AND JUDGE. RUN AT YOUR OWN RISK.
+#
+# Purpose:
+#   Polls one or more news sources defined in /etc/kiro-news/sources.conf
+#   and fires a desktop notification (notify-send) whenever a source's
+#   newest item is one this user has not seen before. Two source types:
+#     rss  — plain consume over HTTPS (e.g. Arch Linux news). Display-only.
+#     json — Kiro's own feed. MUST be signed: the feed is verified with
+#            minisign against the shipped public key before anything is
+#            shown, so a forged "Kiro says ..." message is never displayed.
+#   Read-state is tracked per-source, per-user under ~/.cache, so it needs
+#   no root and is multi-user safe.
+#
+# Why:
+#   A DE-agnostic, owned channel to reach people running Kiro — upstream
+#   Arch news plus Kiro's own announcements — without any server: the feed
+#   is a static (signed) file published on the website. One bad/unreachable
+#   source never aborts the others.
+#####################################################################
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+CONFIG_FILE="${KIRO_NEWS_CONFIG:-/etc/kiro-news/sources.conf}"
+PUBKEY="${KIRO_NEWS_PUBKEY:-/usr/share/kiro-news/kiro.pub}"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/kiro-news"
+
+# ── Colors (tput, silent fallback when not a TTY) ───────────────────
+if [[ -t 1 ]] && command -v tput >/dev/null 2>&1; then
+    RED="$(tput setaf 1)"; GREEN="$(tput setaf 2)"; YELLOW="$(tput setaf 3)"
+    BLUE="$(tput setaf 4)"; CYAN="$(tput setaf 6)"; RESET="$(tput sgr0)"
+else
+    RED=""; GREEN=""; YELLOW=""; BLUE=""; CYAN=""; RESET=""
+fi
+
+# ── Logging (lean: single-line, no banners — runs headless on a timer) ─
+log_info()    { echo "${BLUE}[info]${RESET} $*"; }
+log_warn()    { echo "${YELLOW}[warn]${RESET} $*" >&2; }
+log_error()   { echo "${RED}[error]${RESET} $*" >&2; }
+log_success() { echo "${GREEN}[ ok ]${RESET} $*"; }
+
+on_error() {
+    echo "${RED}ERROR on line $1: $2${RESET}" >&2
+    sleep 10
+}
+trap 'on_error "$LINENO" "$BASH_COMMAND"' ERR
+
+# ── Functions ───────────────────────────────────────────────────────
+decode_entities() {
+    sed -e 's/&amp;/\&/g' -e 's/&lt;/</g' -e 's/&gt;/>/g' \
+        -e "s/&#39;/'/g" -e 's/&quot;/"/g'
+}
+
+# Parse the newest <item> of an RSS feed. Emits "guid<TAB>title<TAB>link".
+parse_rss() {
+    local feed="$1" item title link guid
+    item="$(printf '%s' "$feed" | tr '\n' ' ' | grep -oP '<item>.*?</item>' | head -1 || true)"
+    [[ -z "$item" ]] && return 1
+    title="$(printf '%s' "$item" | grep -oP '(?<=<title>).*?(?=</title>)' | head -1 | decode_entities || true)"
+    link="$(printf '%s'  "$item" | grep -oP '(?<=<link>).*?(?=</link>)'   | head -1 | decode_entities || true)"
+    guid="$(printf '%s'  "$item" | grep -oP '<guid[^>]*>\K[^<]*'          | head -1 || true)"
+    [[ -z "$guid" ]] && guid="$link"
+    [[ -z "$title" || -z "$guid" ]] && return 1
+    printf '%s\t%s\t%s\n' "$guid" "$title" "$link"
+}
+
+# Parse the newest item of a Kiro JSON feed. Emits "id<TAB>title<TAB>url".
+parse_json() {
+    local feed="$1" id title url
+    id="$(printf '%s'    "$feed" | jq -r '.items[0].id    // empty' 2>/dev/null || true)"
+    title="$(printf '%s' "$feed" | jq -r '.items[0].title // empty' 2>/dev/null || true)"
+    url="$(printf '%s'   "$feed" | jq -r '.items[0].url   // empty' 2>/dev/null || true)"
+    [[ -z "$title" || -z "$id" ]] && return 1
+    printf '%s\t%s\t%s\n' "$id" "$title" "$url"
+}
+
+# Verify a signed feed body against the shipped public key. The detached
+# signature lives next to the feed as <url>.minisig. Returns non-zero
+# (skip the source) when minisign or the key is absent — this is the
+# inert state until Erik generates and ships the keypair.
+verify_signed() {
+    local url="$1" body="$2" tmp sig rc=0
+    if [[ ! -f "$PUBKEY" ]]; then
+        log_info "signing not configured yet (no $PUBKEY) — skipping signed source"
+        return 1
+    fi
+    if ! command -v minisign >/dev/null 2>&1; then
+        log_warn "minisign not installed — cannot verify signed source, skipping"
+        return 1
+    fi
+    tmp="$(mktemp -d)"
+    printf '%s' "$body" > "$tmp/feed"
+    if ! curl -fsSL --max-time 20 "${url}.minisig" -o "$tmp/feed.minisig"; then
+        log_warn "no signature at ${url}.minisig — refusing to display unsigned Kiro feed"
+        rm -rf "$tmp"; return 1
+    fi
+    minisign -Vqm "$tmp/feed" -x "$tmp/feed.minisig" -p "$PUBKEY" >/dev/null 2>&1 || rc=1
+    rm -rf "$tmp"
+    return $rc
+}
+
+notify_item() {
+    local name="$1" title="$2" link="$3"
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send --app-name="$name" --icon=dialog-information \
+            --urgency=normal "$name" "${title}"$'\n'"${link}"
+    fi
+    echo "${CYAN}${name}: ${title}${RESET}"
+    [[ -n "$link" ]] && echo "  ${link}"
+}
+
+# Handle a single source line: "id|type|url|display_name|verify"
+process_source() {
+    local id type url name verify
+    IFS='|' read -r id type url name verify <<< "$1"
+    [[ -z "$id" || -z "$type" || -z "$url" ]] && { log_warn "malformed source line: $1"; return 0; }
+    name="${name:-$id}"; verify="${verify:-none}"
+
+    local body
+    if ! body="$(curl -fsSL --max-time 20 "$url")"; then
+        log_warn "[$id] unreachable: $url — skipping this cycle"
+        return 0
+    fi
+
+    if [[ "$verify" == "signed" ]]; then
+        verify_signed "$url" "$body" || return 0
+    fi
+
+    local parsed guid title link
+    case "$type" in
+        rss)  parsed="$(parse_rss  "$body")" || { log_warn "[$id] could not parse RSS";  return 0; } ;;
+        json) parsed="$(parse_json "$body")" || { log_warn "[$id] could not parse JSON"; return 0; } ;;
+        *)    log_warn "[$id] unknown type '$type'"; return 0 ;;
+    esac
+    IFS=$'\t' read -r guid title link <<< "$parsed"
+
+    local state_file="$CACHE_DIR/${id}.last_seen"
+    if [[ ! -f "$state_file" ]]; then
+        printf '%s\n' "$guid" > "$state_file"
+        log_info "[$id] first run — baseline: $title"
+        return 0
+    fi
+    if [[ "$(cat "$state_file")" == "$guid" ]]; then
+        log_info "[$id] no new items"
+        return 0
+    fi
+
+    notify_item "$name" "$title" "$link"
+    printf '%s\n' "$guid" > "$state_file"
+    log_success "[$id] notified: $title"
+}
+
+main() {
+    mkdir -p "$CACHE_DIR"
+    if [[ ! -r "$CONFIG_FILE" ]]; then
+        log_error "no config at $CONFIG_FILE"
+        exit 1
+    fi
+    # One failing source must never abort the rest.
+    while IFS= read -r line; do
+        line="${line%%#*}"
+        line="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+        [[ -z "$line" ]] && continue
+        process_source "$line" || log_warn "source failed: $line"
+    done < "$CONFIG_FILE"
+}
+
+main "$@"
