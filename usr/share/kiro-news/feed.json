@@ -1,6 +1,13 @@
 {
   "items": [
     {
+      "id": "2026-06-14-pacman-conf-repos",
+      "title": "Check your /etc/pacman.conf has the Kiro repositories",
+      "summary": "Make sure your <strong>/etc/pacman.conf</strong> enables the two repositories Kiro relies on — <strong>nemesis_repo</strong> (Kiro's own packages) and <strong>chaotic-aur</strong>. A third, <strong>cachyos</strong>, is optional and shipped disabled. If any are missing, open the file as root and add these blocks:<pre style=\"background:#181825;border:1px solid #313244;border-radius:6px;padding:.6rem .8rem;overflow:auto;color:#cdd6f4\">[nemesis_repo]\nInclude = /etc/pacman.d/kiro-mirrorlist\n\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n\n#[cachyos]\n#Include = /etc/pacman.d/cachyos-mirrorlist</pre>Then refresh with <strong>sudo pacman -Syu</strong>. <strong>cachyos</strong> is shown commented out — it is disabled by default on Kiro (chaotic-aur is the backstop); uncomment it only if you want it. Fresh Kiro installs already have these set up — this is a reminder for anyone who edited pacman.conf by hand or is migrating an existing system.",
+      "url": "https://kiroproject.be",
+      "date": "2026-06-14"
+    },
+    {
       "id": "2026-06-13-informant-optin",
       "title": "Optional: pause upgrades on Arch news with informant",
       "summary": "Want your system to pause before an upgrade until you've read the latest Arch news? <strong>informant</strong> is an optional tool that shows Arch announcements and holds back pacman/paru/yay until you've seen them — a useful safety net, especially after incidents like the recent AUR one. It is opt-in and <strong>not installed by default</strong> on Kiro. To turn it on: <strong>paru -S informant</strong> (it's in chaotic-aur, already enabled on Kiro), then run <strong>informant read</strong> to clear the current news. You can remove it any time with <strong>paru -R informant</strong>.",

@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.06.14
+
+### What Changed
+- New Kiro feed message `2026-06-14-pacman-conf-repos`: reminds users to verify
+  their `/etc/pacman.conf` enables the two repositories Kiro relies on —
+  `nemesis_repo` and `chaotic-aur` — with the exact stanzas to add. `cachyos`
+  is included commented-out as optional (shipped disabled by default).
+
+### Technical Details
+- Prepended the item to the top of `items` in
+  `usr/share/kiro-news/feed.json`. The repo blocks are rendered in a styled
+  `<pre>` (trusted inline HTML, consistent with the existing `<strong>` usage —
+  the feed ships inside the package, so it is not escaped).
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`
+
 ## 2026.06.13
 
 ### What Changed
