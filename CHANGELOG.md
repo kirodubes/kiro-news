@@ -8,14 +8,26 @@
   `nemesis_repo` and `chaotic-aur` — with the exact stanzas to add. `cachyos`
   is included commented-out as optional (shipped disabled by default).
 
+- Fixed multi-line summaries rendering as literal `\n`: the styled `<pre>` repo
+  block (and any future multi-line summary) now breaks into real lines instead
+  of showing escaped newlines.
+
 ### Technical Details
 - Prepended the item to the top of `items` in
   `usr/share/kiro-news/feed.json`. The repo blocks are rendered in a styled
   `<pre>` (trusted inline HTML, consistent with the existing `<strong>` usage —
   the feed ships inside the package, so it is not escaped).
+- Root cause of the literal-`\n` bug: item summaries flow through jq `@tsv`
+  (one record per line), which re-escapes real newlines back to literal `\n`.
+  Fixed at the transport layer — the `summary` field is now base64-encoded in
+  the jq query (`(.summary // "" | @base64)`) and decoded with `base64 -d` in
+  the HTML read loop. This preserves newlines and special chars for all
+  summaries, not just this one string. RSS items carry no summary, so the
+  decode is a no-op there.
 
 ### Files Modified
 - `usr/share/kiro-news/feed.json`
+- `usr/bin/kiro-news`
 
 ## 2026.06.13
 
