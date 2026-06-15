@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026.06.15
+
+### What Changed
+- **Localized the desktop entry.** Added a translated `Comment` and a new `GenericName`
+  ("News Reader") in 14 languages (de, fr, nl, es, it, pt_BR, pt, ru, pl, uk, zh_CN, ja, tr, cs).
+  Brand `Name` and technical `Keywords` stay English.
+- **Fixed the menu category.** `Categories=X-Kiro;` had no registered main category (entry fell to
+  the menu catch-all off-Kiro). Now `Network;News;X-Kiro;` — proper home as a news reader, while
+  `X-Kiro` keeps it in the Kiro submenu.
+
+### Files Modified
+- `usr/share/applications/kiro-news.desktop`
+
 ## 2026.06.14
 
 ### What Changed
