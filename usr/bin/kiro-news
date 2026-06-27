@@ -153,7 +153,7 @@ notify_item() {
     local name="$1" title="$2" link="$3"
     if command -v notify-send >/dev/null 2>&1; then
         notify-send --app-name="$name" --icon=dialog-information \
-            --urgency=normal "$name" "${title}"$'\n'"${link}"
+            --urgency=normal --expire-time=60000 "$name" "${title}"$'\n'"${link}"
     fi
     echo "${CYAN}${name}: ${title}${RESET}"
     [[ -n "$link" ]] && echo "  ${link}"

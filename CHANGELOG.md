@@ -7,9 +7,14 @@
   **Fish Tweak Tool**, a GTK4 graphical configurator for the fish shell
   (install prompts/plugins, browse themes, tune greeting/cursor). Now the
   newest item in the feed.
+- **Notifications now linger 60 seconds.** Added `--expire-time=60000` to the
+  `notify-send` call in `notify_item()` so news messages stay on screen for a
+  minute instead of vanishing in the daemon's default few seconds. Clicking the
+  notification still dismisses it immediately (default daemon behaviour).
 
 ### Files Modified
 - `usr/share/kiro-news/feed.json`
+- `usr/bin/kiro-news`
 
 ## 2026.06.15
 
