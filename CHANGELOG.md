@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026.06.27
+
+### What Changed
+- New Kiro feed item `2026-06-27-fish-tweak-tool`: announces the release of
+  **Fish Tweak Tool**, a GTK4 graphical configurator for the fish shell
+  (install prompts/plugins, browse themes, tune greeting/cursor). Now the
+  newest item in the feed.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`
+
 ## 2026.06.15
 
 ### What Changed
