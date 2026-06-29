@@ -3,13 +3,14 @@
 ## 2026.06.29
 
 ### What Changed
-- **Removed the Internet-menu launcher** (`kiro-news.desktop`). Dropped at Erik's
-  request to declutter the XFCE Internet category. The package is unaffected
-  otherwise — the `kiro-news` CLI (`kiro-news show`) and the news-fetch systemd
-  user timer keep working; there is simply no menu entry now.
+- **Moved the launcher out of the Internet menu into the Kiro menu.** Changed
+  `kiro-news.desktop` from `Categories=Network;News;X-Kiro;` to `Categories=X-Kiro;`
+  so it no longer shows under Internet — it now appears only in the Kiro menu
+  alongside the other Kiro links. (An earlier 102/103 build deleted it outright;
+  this restores it, relocated.)
 
 ### Files Modified
-- `usr/share/applications/kiro-news.desktop` (removed)
+- `usr/share/applications/kiro-news.desktop` (Categories → X-Kiro only)
 
 ## 2026.06.27
 
