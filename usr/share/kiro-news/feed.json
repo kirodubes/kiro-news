@@ -1,6 +1,13 @@
 {
   "items": [
     {
+      "id": "2026-07-01-broadcom-wl-dkms-local-newer",
+      "title": "Why pacman may warn broadcom-wl-dkms local is newer than extra",
+      "summary": "If you have the optional <strong>cachyos</strong> repository enabled and see a warning like <strong>warning: broadcom-wl-dkms: local (6.30.223.271-49) is newer than extra (6.30.223.271-48)</strong>, this is expected and <strong>not a bug</strong>. cachyos rebuilds some packages — including DKMS driver packages like <strong>broadcom-wl-dkms</strong> — on its own schedule, and can ship a higher pkgrel than the current <strong>extra</strong> build before Arch's own rebuild catches up. Kiro's <strong>/etc/pacman.conf</strong> lists <strong>extra before cachyos</strong>, so once you're on the cachyos build, later syncs keep resolving against extra's (older) pkgrel and pacman flags the mismatch rather than silently downgrading you. <strong>There is nothing to fix</strong> — pacman will not downgrade an installed package on its own, so your working driver stays installed. The warning clears itself once extra publishes a pkgrel that catches up or exceeds cachyos's. If you'd rather not see it, you can pin the package to extra with a <strong>[options] NoUpgrade = broadcom-wl-dkms</strong> line, or simply ignore the warning — it's cosmetic.",
+      "url": "https://kiroproject.be",
+      "date": "2026-07-01"
+    },
+    {
       "id": "2026-06-27-fish-tweak-tool",
       "title": "New app: Fish Tweak Tool",
       "summary": "Say hello to <strong>Fish Tweak Tool</strong> — a GTK4 graphical configurator for the <strong>fish shell</strong>. Fish already ships a theme picker, but it can't install prompts and plugins for you. This app fills that gap: install a modern prompt (<strong>Tide, Starship, Hydro, Pure</strong>), toggle the must-have <strong>fisher</strong> plugins, browse colour themes, and tune the greeting and cursor — all from one desktop app, no browser, no sudo. It only ever writes per-user overrides to <strong>~/.config/fish/</strong>, so it never fights the shipped Kiro defaults. Install it with <strong>sudo pacman -S fish-tweak-tool</strong>.",

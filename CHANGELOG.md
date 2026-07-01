@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.07.01
+
+### What Changed
+- New Kiro feed item `2026-07-01-broadcom-wl-dkms-local-newer`: explains the
+  `warning: broadcom-wl-dkms: local (...) is newer than extra (...)` pacman
+  message users with the optional `cachyos` repo enabled may see — cachyos
+  can rebuild DKMS packages with a higher pkgrel before `extra` catches up;
+  since Kiro's pacman.conf lists `extra` before `cachyos`, later syncs keep
+  resolving against the older `extra` pkgrel. Harmless, no downgrade happens,
+  no action required. Now the newest item in the feed.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`
+
 ## 2026.06.29
 
 ### What Changed
