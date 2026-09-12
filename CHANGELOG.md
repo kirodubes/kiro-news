@@ -12,9 +12,20 @@
   to do. Now the newest item in the feed.
 - Bumped `pkgver` 26.07 → 26.09 in the PKGBUILD — the feed ships inside the
   package, so a version bump is what actually delivers the item to users.
+- **`kiro-news show` page readability:** item titles are now bold and the
+  summary starts after a real blank line, so each headline stands out from the
+  body text instead of blending into it.
+
+### Technical Details
+- Added `li>a{font-weight:700}` to the inline stylesheet in `cmd_show` — scoped
+  to list items so the gradient `h1` and the `h2` source headings are untouched.
+- Widened `.summary` margins from `.2rem 0 .8rem` to `.75rem 0 1.4rem`: the top
+  margin creates the blank line under the title, the bottom one keeps
+  consecutive items from running together.
 
 ### Files Modified
 - `usr/share/kiro-news/feed.json`
+- `usr/bin/kiro-news`
 - `../KIRO-PKG-BUILD-APPS/kiro-news/PKGBUILD` (pkgver 26.07 → 26.09)
 
 ## 2026.07.01

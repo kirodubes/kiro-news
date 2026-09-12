@@ -232,8 +232,9 @@ h1{background:linear-gradient(90deg,#89b4fa,#a6e3a1);-webkit-background-clip:tex
 h2{border-bottom:2px solid #45475a;padding-bottom:.3rem;margin-top:2rem;color:#89b4fa}
 ul{list-style:none;padding:0}li{margin:.6rem 0}
 a{color:#cdd6f4;text-decoration:none}a:hover{color:#a6e3a1}
+li>a{font-weight:700}
 .date{color:#9399b2;font-size:.82em;margin-left:.4rem}.muted{color:#9399b2}
-.summary{color:#bac2de;font-size:.9em;margin:.2rem 0 .8rem}
+.summary{color:#bac2de;font-size:.9em;margin:.75rem 0 1.4rem}
 </style></head><body><h1>Kiro &amp; Arch news</h1>
 HTML
         local line id type url name verify body items title link date
