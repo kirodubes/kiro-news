@@ -1,6 +1,13 @@
 {
   "items": [
     {
+      "id": "2026-09-12-v26-10-01-kernels",
+      "title": "Next release v26.10.01 ships linux as the main kernel and linux-lts as backup",
+      "summary": "The next Kiro ISO, <strong>v26.10.01</strong>, is due on <strong>1 October 2026</strong> and it changes the kernel pairing: <strong>linux</strong> — the plain, official Arch kernel — becomes the one you boot by default, with <strong>linux-lts</strong> installed alongside it as the backup. Every monthly Kiro ISO ships <strong>two kernels</strong> on purpose: one that boots by default and a second one that is installed as well, so a bad kernel update never leaves you without something to boot. Both kernels and their matching <strong>-headers</strong> survive the install, so DKMS modules (VirtualBox guest additions, NVIDIA) stay buildable for both. The pairing is deliberately rotated month to month — <strong>v26.09.01</strong> shipped <strong>linux-cachyos</strong> with <strong>linux-zen</strong> — which keeps the other kernels genuinely exercised on real installs instead of only in theory. <strong>Nothing to do on your current system:</strong> this is about what a fresh install from the October ISO gives you. If you want the LTS kernel on an existing Kiro machine you can always add it yourself with <strong>sudo pacman -S linux-lts linux-lts-headers</strong>.",
+      "url": "https://kiroproject.be",
+      "date": "2026-09-12"
+    },
+    {
       "id": "2026-07-01-broadcom-wl-dkms-local-newer",
       "title": "Why pacman may warn broadcom-wl-dkms local is newer than extra",
       "summary": "If you have the optional <strong>cachyos</strong> repository enabled and see a warning like <strong>warning: broadcom-wl-dkms: local (6.30.223.271-49) is newer than extra (6.30.223.271-48)</strong>, this is expected and <strong>not a bug</strong>. cachyos rebuilds some packages — including DKMS driver packages like <strong>broadcom-wl-dkms</strong> — on its own schedule, and can ship a higher pkgrel than the current <strong>extra</strong> build before Arch's own rebuild catches up. Kiro's <strong>/etc/pacman.conf</strong> lists <strong>extra before cachyos</strong>, so once you're on the cachyos build, later syncs keep resolving against extra's (older) pkgrel and pacman flags the mismatch rather than silently downgrading you. <strong>There is nothing to fix</strong> — pacman will not downgrade an installed package on its own, so your working driver stays installed. The warning clears itself once extra publishes a pkgrel that catches up or exceeds cachyos's. If you'd rather not see it, you can pin the package to extra with a <strong>[options] NoUpgrade = broadcom-wl-dkms</strong> line, or simply ignore the warning — it's cosmetic.",

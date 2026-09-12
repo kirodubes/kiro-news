@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.09.12
+
+### What Changed
+- New Kiro feed item `2026-09-12-v26-10-01-kernels`: announces that the next
+  Kiro ISO, **v26.10.01** (due 1 October 2026), ships **`linux`** as the main
+  kernel with **`linux-lts`** installed alongside as the backup — a change from
+  v26.09.01's `linux-cachyos` + `linux-zen`. Explains the two-kernel policy and
+  why the pairing rotates monthly, notes that both kernels keep their
+  `-headers` so DKMS stays buildable, and tells existing users there is nothing
+  to do. Now the newest item in the feed.
+- Bumped `pkgver` 26.07 → 26.09 in the PKGBUILD — the feed ships inside the
+  package, so a version bump is what actually delivers the item to users.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`
+- `../KIRO-PKG-BUILD-APPS/kiro-news/PKGBUILD` (pkgver 26.07 → 26.09)
+
 ## 2026.07.01
 
 ### What Changed
