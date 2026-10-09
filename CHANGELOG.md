@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.10.09
+
+### What Changed
+- New Kiro feed item `2026-10-09-kirotux-hyprland-dms-v26-10-08`: announces the KiroTux Hyprland DMS v26.10.08
+  release. It explains what KiroTux is (built on Kiro, one ISO for Hyprland + DankMaterialShell), what's new (dark
+  theming for Qt and root apps), what the premium settings app (Ctrl + Alt + H) does, and how to get it (donation
+  with a minimum, download via the KiroTux page on the website). Now the newest item in the feed.
+
+### Technical Details
+- Facts come from the kiro-iso-hyprland-dms RELEASES.md entry, the kirotux-hyprland-premium README and the
+  website's kirotux.html; nothing from the web. Earlier test builds aren't mentioned. `build.sh` bumps the
+  package version, which is what delivers the item to users.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`
+- `CHANGELOG.md`
+
 ## 2026.09.12
 
 ### What Changed
