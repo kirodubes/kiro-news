@@ -10,6 +10,9 @@
 - **`kiro-news show` reads like a web page:** each item is a card with space around it, the date sits on its own
   line, and inside an article paragraphs are spaced, lists show bullets and links are blue and underlined. Before,
   the page-wide `ul`/`a` styles hid bullets and made links look like plain text.
+- **The six older posts are restructured the same way:** short paragraphs, bullets where they list steps or
+  options, and a link at the end where the post names a page (Fish Tweak Tool on GitHub, informant in the AUR,
+  the Arch advisory). The facts are unchanged.
 
 ### Technical Details
 - Facts come from the kiro-iso-hyprland-dms RELEASES.md entry, the kirotux-hyprland-premium README and the
