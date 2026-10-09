@@ -6,15 +6,22 @@
 - New Kiro feed item `2026-10-09-kirotux-hyprland-dms-v26-10-08`: announces the KiroTux Hyprland DMS v26.10.08
   release. It explains what KiroTux is (built on Kiro, one ISO for Hyprland + DankMaterialShell), what's new (dark
   theming for Qt and root apps), what the premium settings app (Ctrl + Alt + H) does, and how to get it (donation
-  with a minimum, download via the KiroTux page on the website). Now the newest item in the feed.
+  with a minimum). Now the newest item in the feed. It's split into short paragraphs, lists the settings app's features as bullets, and ends with links to the Ko-fi shop and the KiroTux page.
+- **`kiro-news show` reads like a web page:** each item is a card with space around it, the date sits on its own
+  line, and inside an article paragraphs are spaced, lists show bullets and links are blue and underlined. Before,
+  the page-wide `ul`/`a` styles hid bullets and made links look like plain text.
 
 ### Technical Details
 - Facts come from the kiro-iso-hyprland-dms RELEASES.md entry, the kirotux-hyprland-premium README and the
   website's kirotux.html; nothing from the web. Earlier test builds aren't mentioned. `build.sh` bumps the
   package version, which is what delivers the item to users.
+- The item list now uses `ul.items`, so the card styling no longer leaks into lists inside an article; the
+  `.summary` rules style `p`, `ul`, `li` and `a`. Notifications show only the title and link, so article HTML
+  never reaches them.
 
 ### Files Modified
 - `usr/share/kiro-news/feed.json`
+- `usr/bin/kiro-news`
 - `CHANGELOG.md`
 
 ## 2026.09.12

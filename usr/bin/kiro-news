@@ -230,11 +230,16 @@ background:#1e1e2e;color:#cdd6f4;line-height:1.5}
 h1{background:linear-gradient(90deg,#89b4fa,#a6e3a1);-webkit-background-clip:text;
 -webkit-text-fill-color:transparent;font-size:2rem}
 h2{border-bottom:2px solid #45475a;padding-bottom:.3rem;margin-top:2rem;color:#89b4fa}
-ul{list-style:none;padding:0}li{margin:.6rem 0}
+ul.items{list-style:none;padding:0}
+ul.items>li{background:#181825;border:1px solid #313244;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0}
 a{color:#cdd6f4;text-decoration:none}a:hover{color:#a6e3a1}
-li>a{font-weight:700}
-.date{color:#9399b2;font-size:.82em;margin-left:.4rem}.muted{color:#9399b2}
-.summary{color:#bac2de;font-size:.9em;margin:.75rem 0 1.4rem}
+li>a{font-weight:700;font-size:1.08em}
+.date{display:block;color:#9399b2;font-size:.82em;margin-top:.2rem}.muted{color:#9399b2}
+.summary{color:#bac2de;margin-top:.8rem}
+.summary p{margin:0 0 .8rem}
+.summary ul{list-style:disc;padding-left:1.4rem;margin:0 0 .8rem}
+.summary li{margin:.3rem 0}
+.summary a{color:#89b4fa;text-decoration:underline}.summary a:hover{color:#a6e3a1}
 </style></head><body><h1>Kiro &amp; Arch news</h1>
 HTML
         local line id type url name verify body items title link date
@@ -257,7 +262,7 @@ HTML
                 *)    items="" ;;
             esac
             [[ -z "$items" ]] && { echo '<p class="muted">No items.</p>'; continue; }
-            echo "<ul>"
+            echo '<ul class="items">'
             while IFS=$'\t' read -r title link date summary; do
                 [[ -z "$title" ]] && continue
                 printf '<li><a href="%s">%s</a><span class="date">%s</span>' \
