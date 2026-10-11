@@ -3,6 +3,10 @@
 ## 2026.10.11
 
 ### What Changed
+- New Kiro feed item `2026-10-11-kirotux-niri-dms-v26-10-11`: announces **KiroTux Niri DMS v26.10.11**, the second
+  KiroTux edition (niri + DankMaterialShell, with Kirotux Niri Premium). Same build as the Hyprland DMS announcement:
+  what KiroTux is, the desktop, the premium app as bullets, the free `kiro-niri-dms` config, donation with a minimum,
+  and a link to the KiroTux page (the Ko-fi product link follows once it exists). Now the newest item.
 - **Other packages can add a news feed** without touching `sources.conf`: kiro-news now also reads every
   `/etc/kiro-news/sources.d/*.conf` (same `id|type|url|display name|verify` line format), in name order and
   **before** `sources.conf`, so a package's feed is the first section on the news page. Each extra source gets its own notifications and its own section in `kiro-news show`. Nothing changes
