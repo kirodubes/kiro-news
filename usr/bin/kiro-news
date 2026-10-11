@@ -172,10 +172,12 @@ source_lines() {
     return 0
 }
 
-# Handle a single source line: "id|type|url|display_name|verify"
+# Handle a single source line: "id|type|url|display_name|verify[|first]"
+# first: baseline (default) records the newest item silently on a first run; notify shows it, for feeds a
+# package installs later, where the newest item is the news the user should see.
 process_source() {
-    local id type url name verify
-    IFS='|' read -r id type url name verify <<< "$1"
+    local id type url name verify first
+    IFS='|' read -r id type url name verify first <<< "$1"
     [[ -z "$id" || -z "$type" || -z "$url" ]] && { log_warn "malformed source line: $1"; return 0; }
     name="${name:-$id}"; verify="${verify:-none}"
 
@@ -198,12 +200,12 @@ process_source() {
     IFS=$'\t' read -r guid title link <<< "$parsed"
 
     local state_file="$CACHE_DIR/${id}.last_seen"
-    if [[ ! -f "$state_file" ]]; then
+    if [[ ! -f "$state_file" && "${first:-baseline}" != "notify" ]]; then
         printf '%s\n' "$guid" > "$state_file"
         log_info "[$id] first run — baseline: $title"
         return 0
     fi
-    if [[ "$(cat "$state_file")" == "$guid" ]]; then
+    if [[ -f "$state_file" && "$(cat "$state_file")" == "$guid" ]]; then
         log_info "[$id] no new items"
         return 0
     fi
@@ -255,12 +257,12 @@ li>a{font-weight:700;font-size:1.08em}
 .summary a{color:#89b4fa;text-decoration:underline}.summary a:hover{color:#a6e3a1}
 </style></head><body><h1>Kiro &amp; Arch news</h1>
 HTML
-        local line id type url name verify body items title link date
+        local line id type url name verify _first body items title link date
         while IFS= read -r line; do
             line="${line%%#*}"
             line="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
             [[ -z "$line" ]] && continue
-            IFS='|' read -r id type url name verify <<< "$line"
+            IFS='|' read -r id type url name verify _first <<< "$line"
             name="${name:-$id}"; verify="${verify:-none}"
             echo "<h2>$(printf '%s' "$name" | html_escape)</h2>"
             if ! body="$(fetch_body "$url")"; then

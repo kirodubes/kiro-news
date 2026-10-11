@@ -7,6 +7,9 @@
   `/etc/kiro-news/sources.d/*.conf` (same `id|type|url|display name|verify` line format), after `sources.conf` and in
   name order. Each extra source gets its own notifications and its own section in `kiro-news show`. Nothing changes
   for a system without such files: still Arch Linux News and Kiro News.
+- **Optional 6th field `notify`** on a source line: the newest item is shown on the first run too. The default
+  (`baseline`, or no 6th field) stays as before: a first run only records the newest item, so a fresh install isn't
+  flooded. Meant for feeds a package adds later, whose newest item is exactly what the user should see.
 
 ### Technical Details
 - New `source_lines()` prints `sources.conf` and then the `sources.d/*.conf` files; `cmd_poll` and `cmd_show` read
@@ -17,6 +20,7 @@
 
 ### Files Modified
 - `usr/bin/kiro-news`
+- `etc/kiro-news/sources.conf` (comment for the 6th field)
 - `etc/kiro-news/sources.d/README` (new)
 - `CHANGELOG.md`
 
