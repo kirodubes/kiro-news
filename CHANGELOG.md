@@ -4,15 +4,15 @@
 
 ### What Changed
 - **Other packages can add a news feed** without touching `sources.conf`: kiro-news now also reads every
-  `/etc/kiro-news/sources.d/*.conf` (same `id|type|url|display name|verify` line format), after `sources.conf` and in
-  name order. Each extra source gets its own notifications and its own section in `kiro-news show`. Nothing changes
+  `/etc/kiro-news/sources.d/*.conf` (same `id|type|url|display name|verify` line format), in name order and
+  **before** `sources.conf`, so a package's feed is the first section on the news page. Each extra source gets its own notifications and its own section in `kiro-news show`. Nothing changes
   for a system without such files: still Arch Linux News and Kiro News.
 - **Optional 6th field `notify`** on a source line: the newest item is shown on the first run too. The default
   (`baseline`, or no 6th field) stays as before: a first run only records the newest item, so a fresh install isn't
   flooded. Meant for feeds a package adds later, whose newest item is exactly what the user should see.
 
 ### Technical Details
-- New `source_lines()` prints `sources.conf` and then the `sources.d/*.conf` files; `cmd_poll` and `cmd_show` read
+- New `source_lines()` prints the `sources.d/*.conf` files and then `sources.conf`; `cmd_poll` and `cmd_show` read
   from it instead of `sources.conf` alone. The folder follows `KIRO_NEWS_CONFIG` (or `KIRO_NEWS_SOURCES_DIR`).
 - `etc/kiro-news/sources.d/README` keeps the folder in git and in the package; it isn't a `.conf`, so it's not read.
 - Tested with a temporary config: no extra files → Kiro only; one extra `.conf` → baseline on first run, a

@@ -162,14 +162,14 @@ notify_item() {
     [[ -n "$link" ]] && echo "  ${link}"
 }
 
-# Print sources.conf, then every sources.d/*.conf in name order.
+# Print every sources.d/*.conf in name order, then sources.conf: a feed a package adds is the one most specific to
+# this system, so it comes first in the notifications and on the news page.
 source_lines() {
-    cat "$CONFIG_FILE"
     local f
     for f in "$SOURCES_DIR"/*.conf; do
         [[ -r "$f" ]] && cat "$f"
     done
-    return 0
+    cat "$CONFIG_FILE"
 }
 
 # Handle a single source line: "id|type|url|display_name|verify[|first]"
