@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026.10.11
+
+### What Changed
+- **Other packages can add a news feed** without touching `sources.conf`: kiro-news now also reads every
+  `/etc/kiro-news/sources.d/*.conf` (same `id|type|url|display name|verify` line format), after `sources.conf` and in
+  name order. Each extra source gets its own notifications and its own section in `kiro-news show`. Nothing changes
+  for a system without such files: still Arch Linux News and Kiro News.
+
+### Technical Details
+- New `source_lines()` prints `sources.conf` and then the `sources.d/*.conf` files; `cmd_poll` and `cmd_show` read
+  from it instead of `sources.conf` alone. The folder follows `KIRO_NEWS_CONFIG` (or `KIRO_NEWS_SOURCES_DIR`).
+- `etc/kiro-news/sources.d/README` keeps the folder in git and in the package; it isn't a `.conf`, so it's not read.
+- Tested with a temporary config: no extra files → Kiro only; one extra `.conf` → baseline on first run, a
+  notification for a new item, and a second section on the news page.
+
+### Files Modified
+- `usr/bin/kiro-news`
+- `etc/kiro-news/sources.d/README` (new)
+- `CHANGELOG.md`
+
 ## 2026.10.09
 
 ### What Changed

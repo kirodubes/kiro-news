@@ -9,6 +9,7 @@ set -euo pipefail
 #
 # Purpose:
 #   Polls one or more news sources defined in /etc/kiro-news/sources.conf
+#   and /etc/kiro-news/sources.d/*.conf
 #   and fires a desktop notification (notify-send) whenever a source's
 #   newest item is one this user has not seen before. Two source types:
 #     rss  — plain consume over HTTPS (e.g. Arch Linux news). Display-only.
@@ -28,6 +29,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 CONFIG_FILE="${KIRO_NEWS_CONFIG:-/etc/kiro-news/sources.conf}"
+# Other packages add their own feed here (one *.conf each, same line format) instead of editing sources.conf
+SOURCES_DIR="${KIRO_NEWS_SOURCES_DIR:-$(dirname -- "$CONFIG_FILE")/sources.d}"
 PUBKEY="${KIRO_NEWS_PUBKEY:-/usr/share/kiro-news/kiro.pub}"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/kiro-news"
 
@@ -159,6 +162,16 @@ notify_item() {
     [[ -n "$link" ]] && echo "  ${link}"
 }
 
+# Print sources.conf, then every sources.d/*.conf in name order.
+source_lines() {
+    cat "$CONFIG_FILE"
+    local f
+    for f in "$SOURCES_DIR"/*.conf; do
+        [[ -r "$f" ]] && cat "$f"
+    done
+    return 0
+}
+
 # Handle a single source line: "id|type|url|display_name|verify"
 process_source() {
     local id type url name verify
@@ -212,7 +225,7 @@ cmd_poll() {
         line="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
         [[ -z "$line" ]] && continue
         process_source "$line" || log_warn "source failed: $line"
-    done < "$CONFIG_FILE"
+    done < <(source_lines)
 }
 
 # Build a readable HTML page of recent items from every source and open it
@@ -278,7 +291,7 @@ HTML
                 echo "</li>"
             done <<< "$items"
             echo "</ul>"
-        done < "$CONFIG_FILE"
+        done < <(source_lines)
         echo "</body></html>"
     } > "$out"
 
