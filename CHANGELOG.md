@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.10.14
+
+### What Changed
+- **The link in a news notification can now be opened.** Notification text isn't clickable or selectable in most
+  notification daemons (DMS included), so the link printed in the toast was a dead end. Clicking the toast, or its
+  **Open** button, now opens the link in the browser. The link stays in the text for daemons without actions.
+
+### Technical Details
+- `notify_item` passes `--action=default=Open --action=open=Open` when an item has a link and runs `xdg-open` when
+  either action is chosen. `--action` makes notify-send wait until the toast closes, so it runs in a background
+  subshell (capped by `timeout 600`), and `cmd_poll` ends with `wait` so the oneshot user service stays up until
+  the toasts close. Items without a link still send a plain notification.
+
+### Files Modified
+- `usr/bin/kiro-news`
+- `CHANGELOG.md`
+
 ## 2026.10.11
 
 ### What Changed
