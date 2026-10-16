@@ -155,7 +155,7 @@ verify_signed() {
 notify_item() {
     local name="$1" title="$2" link="$3"
     # Notification body text is neither clickable nor selectable in most daemons, so the link is also an action.
-    # Only the "default" action: some daemons (DMS) bind it to clicking the toast, others (xfce4-notifyd) draw it as
+    # Only the "default" action: some daemons (DMS) bind it to clicking the toast, others draw it as
     # a button — a second "open" action showed up there as a duplicate "Open" button. Backgrounded because --action
     # waits for the toast to close; cmd_poll waits for these so the oneshot service keeps them alive.
     if command -v notify-send >/dev/null 2>&1; then
