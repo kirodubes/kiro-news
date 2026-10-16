@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026.10.16
+
+### What Changed
+- **Kiro's own news comes before Arch Linux News.** On the news page and in the notifications, the channels now come
+  in this order: KiroTux News (on KiroTux systems), Kiro News, then Arch Linux News. Before, Arch came first.
+- New Kiro News item: **KiroTux Hyprland Noctalia v26.10.16 is out**, the third KiroTux edition (Hyprland +
+  Noctalia, Kirotux Hyprland Premium), with the Ko-fi link.
+
+### Technical Details
+- `etc/kiro-news/sources.conf`: the `kiro` line moved above `arch`. `source_lines()` already reads `sources.d/*.conf`
+  first, then this file, so feeds added by other packages stay on top. The file is not in `backup=()`, so pacman
+  replaces it on upgrade and existing installs get the new order.
+- `usr/share/kiro-news/feed.json`: item `2026-10-16-kirotux-hyprland-noctalia-v26-10-16` at the top.
+
+### Files Modified
+- `etc/kiro-news/sources.conf`
+- `usr/share/kiro-news/feed.json`
+- `CHANGELOG.md`
+
 ## 2026.10.14
 
 ### What Changed
