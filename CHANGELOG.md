@@ -7,16 +7,22 @@
   in this order: KiroTux News (on KiroTux systems), Kiro News, then Arch Linux News. Before, Arch came first.
 - New Kiro News item: **KiroTux Hyprland Noctalia v26.10.16 is out**, the third KiroTux edition (Hyprland +
   Noctalia, Kirotux Hyprland Premium), with the Ko-fi link.
+- **A news notification shows one Open button, not two.** Daemons that draw the click action as a button showed it
+  next to the separate Open button.
 
 ### Technical Details
 - `etc/kiro-news/sources.conf`: the `kiro` line moved above `arch`. `source_lines()` already reads `sources.d/*.conf`
   first, then this file, so feeds added by other packages stay on top. The file is not in `backup=()`, so pacman
   replaces it on upgrade and existing installs get the new order.
 - `usr/share/kiro-news/feed.json`: item `2026-10-16-kirotux-hyprland-noctalia-v26-10-16` at the top.
+- `notify_item` now passes only `--action=default=Open`. The extra `--action=open=Open` from 2026.10.14 duplicated
+  it on daemons that draw `default` as a button. Spec-compliant daemons that hide `default` still open the link on
+  click.
 
 ### Files Modified
 - `etc/kiro-news/sources.conf`
 - `usr/share/kiro-news/feed.json`
+- `usr/bin/kiro-news`
 - `CHANGELOG.md`
 
 ## 2026.10.14
