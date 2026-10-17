@@ -16,7 +16,8 @@
   timer, so each user reads their own file. A missing file is the usual "unavailable, skipping" case.
 
 ### Files Modified
-- `usr/share/kiro-news/feed.json`, `usr/bin/kiro-news`, `CHANGELOG.md`
+- `usr/share/kiro-news/feed.json`, `usr/bin/kiro-news`, `CHANGELOG.md`, `CLAUDE.md` (release versions must match
+  the ISO file name; the local flows now check it)
 
 ## 2026.10.16
 

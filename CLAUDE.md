@@ -11,3 +11,5 @@ Key invariants:
   ships.
 - The client is headless (systemd user timer) — keep logging lean, no banners.
 - One bad source must never abort the others.
+- A release item's version must match the released ISO's file name exactly. The local flow scripts check this
+  before building and stop on a mismatch.
