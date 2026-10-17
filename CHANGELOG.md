@@ -3,13 +3,15 @@
 ## 2026.10.17
 
 ### What Changed
-- New Kiro News item: **KiroTux Niri Noctalia v26.10.16 is out**, the fourth KiroTux edition (Niri + Noctalia,
+- New Kiro News item: **KiroTux Niri Noctalia v26.10.17 is out**, the fourth KiroTux edition (Niri + Noctalia,
   Kirotux Niri Premium), with the Ko-fi link and the edition's website page.
+  The item first said v26.10.16; the released ISO is v26.10.17, so title and summary were corrected.
 - **Per-user local feeds.** A source path may start with `~/`, which is read from the user's own home. kiro-gdrive
   uses it for its daily "new files in your shared Google Drive folders" feed.
 
 ### Technical Details
 - `usr/share/kiro-news/feed.json`: item `2026-10-17-kirotux-niri-noctalia-v26-10-16` at the top.
+  The id keeps `v26-10-16` on purpose: changing it would notify everyone who already saw the item a second time.
 - `fetch_body` treats `~/...` as a local path and expands the leading `~` to `$HOME`. kiro-news runs as a user
   timer, so each user reads their own file. A missing file is the usual "unavailable, skipping" case.
 
