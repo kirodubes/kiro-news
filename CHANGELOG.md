@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026.10.17
+
+### What Changed
+- New Kiro News item: **KiroTux Niri Noctalia v26.10.16 is out**, the fourth KiroTux edition (Niri + Noctalia,
+  Kirotux Niri Premium), with the Ko-fi link and the edition's website page.
+
+### Technical Details
+- `usr/share/kiro-news/feed.json`: item `2026-10-17-kirotux-niri-noctalia-v26-10-16` at the top.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`, `CHANGELOG.md`
+
 ## 2026.10.16
 
 ### What Changed
