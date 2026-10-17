@@ -71,8 +71,10 @@ html_escape() {
 # Anything else is fetched over HTTPS. Returns non-zero if unavailable.
 fetch_body() {
     local url="$1" path
-    if [[ "$url" == /* || "$url" == file://* ]]; then
+    if [[ "$url" == /* || "$url" == file://* || "$url" == "~/"* ]]; then
         path="${url#file://}"
+        # A leading ~ points at a per-user feed, such as kiro-gdrive's new-files feed in ~/.cache.
+        path="${path/#\~/$HOME}"
         [[ -r "$path" ]] || return 1
         cat "$path"
     else
