@@ -11,6 +11,9 @@
 - **Kiro News now toasts its newest item on a fresh install.** News can be critical (like the Qtile warning), so
   a new user or a new install sees the latest Kiro item at once instead of it being silently marked as read.
   Arch Linux News keeps the silent baseline.
+- **New news pops up as soon as pacman is done.** A pacman hook starts kiro-news for every user logged in on a
+  desktop when a feed or kiro-news itself is installed or upgraded. Before, the hourly timer (plus up to 30 min
+  random delay) could keep a new item hidden for 1.5 hours.
 
 ### Technical Details
 - `usr/share/kiro-news/feed.json`: item `2026-10-18-qtile-python-xcffib-1-7-0` at the top. Its `url` is the warning
@@ -19,10 +22,20 @@
 
 - `etc/kiro-news/sources.conf`: the `kiro` line gets the optional 6th field `notify` (the KiroTux feed already uses
   it). Existing users keep their `~/.cache` read-state, so nothing is shown twice.
+- `usr/share/libalpm/hooks/kiro-news.hook`: Path trigger (Install/Upgrade) on `usr/share/kiro-news/*`,
+  `etc/kiro-news/sources.d/*` and `usr/share/kirotux-news/*`, PostTransaction. The script lists `loginctl` users
+  (UID >= 1000) with a graphical session (`show-user -p Display`) and runs
+  `systemctl --machine=<user>@.host --user start --no-block kiro-news.timer kiro-news.service`. Starting the
+  timer covers a first install, where the user manager has not loaded the shipped wants symlink yet. In a chroot
+  (Calamares, ISO build) `loginctl` fails and the script exits. Template exception like kiro-ohmychadwm-hook:
+  `set -uo pipefail`, no ERR trap, always `exit 0`. Tested on the dev box: the pending Qtile item toasted at once.
 
 ### Files Modified
 - `usr/share/kiro-news/feed.json`
 - `etc/kiro-news/sources.conf`
+- `usr/share/libalpm/hooks/kiro-news.hook` (new)
+- `usr/share/libalpm/scripts/kiro-news-hook` (new)
+- `README.md`
 
 ## 2026.10.17
 

@@ -1,0 +1,47 @@
+#!/bin/bash
+#####################################################################
+# Author    : Erik Dubois
+# Website   : https://kiroproject.be
+#####################################################################
+#
+#   DO NOT JUST RUN THIS. EXAMINE AND JUDGE. RUN AT YOUR OWN RISK.
+#
+# Purpose:
+#   Pacman PostTransaction hook script. When a news feed or kiro-news
+#   itself is installed or upgraded, start kiro-news right away in the
+#   user session of every user who is logged in on a desktop, so a new
+#   item pops up as soon as pacman is done.
+#
+# Why:
+#   News can be critical. The hourly user timer (plus up to 30 min of
+#   random delay) could leave a new item unseen for 1.5 hours.
+#
+# Notes:
+#   - Runs as root, non-interactively, inside the pacman transaction.
+#     It must NEVER hang or abort that transaction, so it uses no
+#     sleep-on-error trap and always exits 0. (Template exception —
+#     see Kiro-HQ/TEMPLATE_EXCLUSIONS.md.)
+#   - In a chroot (Calamares, ISO build) there is no logind: nothing to
+#     do, the timer takes over after the first login.
+#   - Also starts the timer: on a first install the user manager has not
+#     picked up the shipped timers.target.wants symlink yet.
+#####################################################################
+
+set -uo pipefail
+
+TAG="[kiro-news-hook]"
+
+users="$(loginctl list-users --no-legend 2>/dev/null)" || exit 0
+
+while read -r uid user _; do
+    [[ -n "${uid}" && "${uid}" -ge 1000 ]] || continue
+    # Display = the user's graphical session; without one notify-send has nowhere to show the toast.
+    [[ -n "$(loginctl show-user "${user}" -p Display --value 2>/dev/null)" ]] || continue
+    if systemctl --machine="${user}@.host" --user start --no-block kiro-news.timer kiro-news.service; then
+        echo "${TAG} Checking news for ${user}"
+    else
+        echo "${TAG} Could not start kiro-news for ${user}; the timer will show the news later."
+    fi
+done <<< "${users}"
+
+exit 0

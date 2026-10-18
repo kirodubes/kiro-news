@@ -22,7 +22,8 @@ or malformed source never aborts the others.
 1. Edit `usr/share/kiro-news/feed.json` — add an item to the top of `items`
    (`id`, `title`, `url`, `date`).
 2. Rebuild + publish the package (`build.sh` bumps pkgrel → nemesis_repo).
-3. Users receive it on their next `pacman -Syu`; the timer toasts the new item.
+3. Users receive it on their next `pacman -Syu`; a pacman hook toasts the new item as soon as
+   pacman is done (the hourly timer is the fallback).
 
 ## Commands
 
@@ -39,6 +40,8 @@ or malformed source never aborts the others.
 - `/etc/kiro-news/sources.conf` — source definitions
 - `/usr/share/kiro-news/feed.json` — Kiro's own news feed (edit + republish to update)
 - `/usr/lib/systemd/user/kiro-news.{service,timer}` + auto-enable symlink
+- `/usr/share/libalpm/hooks/kiro-news.hook` + `/usr/share/libalpm/scripts/kiro-news-hook` — after a feed is
+  installed or upgraded, start kiro-news at once for every user logged in on a desktop
 
 <!-- KIRO-FUNDING-FOOTER:START — managed by Kiro-HQ/cascade-readme-footer.sh -->
 ## Help fund Kiro

@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/share/kiro-news/*
+Target = etc/kiro-news/sources.d/*
+Target = usr/share/kirotux-news/*
+
+[Action]
+Description = Checking for new Kiro news...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/kiro-news-hook
