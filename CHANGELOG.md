@@ -9,7 +9,8 @@
   It goes with Erik's warning video; Kiro does not hold the package itself.
 
 ### Technical Details
-- `usr/share/kiro-news/feed.json`: item `2026-10-18-qtile-python-xcffib-1-7-0` at the top, linking the qtile
+- `usr/share/kiro-news/feed.json`: item `2026-10-18-qtile-python-xcffib-1-7-0` at the top. Its `url` is the warning
+  video (https://youtu.be/ccp33Or9REE); the summary links the video, the qtile
   (#6075) and Arch (python-xcffib work item 2) bug reports. The 1.6.2 downgrade was verified on a kiro-next VM.
 
 ### Files Modified
