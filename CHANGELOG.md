@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026.10.18
+
+### What Changed
+- New Kiro News item: **Qtile users: do not upgrade python-xcffib to 1.7.0**. Arch's python-xcffib 1.7.0-1
+  (2026-10-15) breaks cairocffi, so Qtile dies at startup. The item tells users to hold the package back, or to
+  go back to 1.6.2 from the Arch archive with an `IgnorePkg` line, and to drop that line once Arch ships 1.7.1+.
+  It goes with Erik's warning video; Kiro does not hold the package itself.
+
+### Technical Details
+- `usr/share/kiro-news/feed.json`: item `2026-10-18-qtile-python-xcffib-1-7-0` at the top, linking the qtile
+  (#6075) and Arch (python-xcffib work item 2) bug reports. The 1.6.2 downgrade was verified on a kiro-next VM.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`
+
 ## 2026.10.17
 
 ### What Changed
