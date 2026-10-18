@@ -17,6 +17,8 @@
 - **The link in a toast is clickable on every desktop.** On xfce4-notifyd the YouTube link was plain text. The toast is
   now built from what the running notification daemon supports, X11 or Wayland: a real link where it renders
   hyperlinks, and clicking the toast opens the link wherever it supports actions.
+- **No browser? kiro-news now says so.** On a system without a web browser, the menu entry (`kiro-news show`) and
+  a toast click used to do nothing at all. They now show a "No web browser found" toast with the page or link.
 
 ### Technical Details
 - `usr/share/kiro-news/feed.json`: item `2026-10-18-qtile-python-xcffib-1-7-0` at the top. Its `url` is the warning
@@ -37,6 +39,9 @@
   markup); `body-hyperlinks` → the link becomes `<a href>`; no markup → plain text so no tags show. `actions`
   → the `default=Open` action as before; no actions → a plain toast. A daemon that does not answer gets plain
   text plus the action.
+- `usr/bin/kiro-news` `open_url`: `xdg-open` the page or link; when it is missing or fails (exo-open exits 4 with no
+  browser), `notify-send` a warning. Used by `cmd_show` and the toast's default action. Found on a kiro-next test
+  install, which ships no browser; it also ships no notification daemon, so nothing can toast there at all.
 
 ### Files Modified
 - `usr/share/kiro-news/feed.json`
