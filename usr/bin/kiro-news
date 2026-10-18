@@ -154,26 +154,47 @@ verify_signed() {
     return $rc
 }
 
+# The running notification daemon's capabilities, asked once per run; "none" when it can't be asked.
+NOTIFY_CAPS=""
+notify_caps() {
+    [[ -n "$NOTIFY_CAPS" ]] || NOTIFY_CAPS="$(gdbus call --session --dest org.freedesktop.Notifications \
+        --object-path /org/freedesktop/Notifications \
+        --method org.freedesktop.Notifications.GetCapabilities 2>/dev/null || echo none)"
+    printf '%s' "$NOTIFY_CAPS"
+}
+
 notify_item() {
     local name="$1" title="$2" link="$3"
-    # Notification body text is neither clickable nor selectable in most daemons, so the link is also an action.
-    # Only the "default" action: some daemons (DMS) bind it to clicking the toast, others draw it as
-    # a button — a second "open" action showed up there as a duplicate "Open" button. Backgrounded because --action
-    # waits for the toast to close; cmd_poll waits for these so the oneshot service keeps them alive.
-    if command -v notify-send >/dev/null 2>&1; then
-        if [[ -n "$link" ]]; then
-            (
-                local action
-                action="$(timeout 600 notify-send --app-name="$name" --icon=dialog-information \
-                    --urgency=normal --expire-time=60000 --action=default=Open \
-                    "$name" "${title}"$'\n'"${link}" 2>/dev/null || true)"
-                [[ -n "$action" ]] && command -v xdg-open >/dev/null 2>&1 && xdg-open "$link" >/dev/null 2>&1
-                true
-            ) &
-        else
-            notify-send --app-name="$name" --icon=dialog-information \
-                --urgency=normal --expire-time=60000 "$name" "${title}"
-        fi
+    command -v notify-send >/dev/null 2>&1 || { echo "${CYAN}${name}: ${title}${RESET}"; return 0; }
+
+    # Fallbacks for every X11/Wayland daemon: the body is markup only where the daemon renders markup (elsewhere
+    # tags would show as text), the link is an <a> only where body-hyperlinks is offered (xfce4-notifyd), and
+    # clicking the toast opens the link through the "default" action. A daemon that can't be asked gets plain
+    # text plus the action, which is the safe combination.
+    local caps body_title body_link
+    caps="$(notify_caps)"
+    body_title="$title"; body_link="$link"
+    if [[ "$caps" == *"'body-markup'"* ]]; then
+        body_title="$(printf '%s' "$title" | html_escape)"
+        body_link="$(printf '%s' "$link" | html_escape)"
+        [[ -n "$link" && "$caps" == *"'body-hyperlinks'"* ]] && body_link="<a href=\"${body_link}\">${body_link}</a>"
+    fi
+
+    if [[ -n "$link" && ( "$caps" == *"'actions'"* || "$caps" == none ) ]]; then
+        # Only the "default" action: some daemons (DMS) bind it to clicking the toast, others draw it as
+        # a button — a second "open" action showed up there as a duplicate "Open" button. Backgrounded because
+        # --action waits for the toast to close; cmd_poll waits for these so the oneshot service keeps them alive.
+        (
+            local action
+            action="$(timeout 600 notify-send --app-name="$name" --icon=dialog-information \
+                --urgency=normal --expire-time=60000 --action=default=Open \
+                "$name" "${body_title}"$'\n'"${body_link}" 2>/dev/null || true)"
+            [[ -n "$action" ]] && command -v xdg-open >/dev/null 2>&1 && xdg-open "$link" >/dev/null 2>&1
+            true
+        ) &
+    else
+        notify-send --app-name="$name" --icon=dialog-information \
+            --urgency=normal --expire-time=60000 "$name" "${body_title}${link:+$'\n'}${body_link}"
     fi
     echo "${CYAN}${name}: ${title}${RESET}"
     [[ -n "$link" ]] && echo "  ${link}"

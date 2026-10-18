@@ -14,6 +14,9 @@
 - **New news pops up as soon as pacman is done.** A pacman hook starts kiro-news for every user logged in on a
   desktop when a feed or kiro-news itself is installed or upgraded. Before, the hourly timer (plus up to 30 min
   random delay) could keep a new item hidden for 1.5 hours.
+- **The link in a toast is clickable on every desktop.** On xfce4-notifyd the YouTube link was plain text. The toast is
+  now built from what the running notification daemon supports, X11 or Wayland: a real link where it renders
+  hyperlinks, and clicking the toast opens the link wherever it supports actions.
 
 ### Technical Details
 - `usr/share/kiro-news/feed.json`: item `2026-10-18-qtile-python-xcffib-1-7-0` at the top. Its `url` is the warning
@@ -29,6 +32,11 @@
   timer covers a first install, where the user manager has not loaded the shipped wants symlink yet. In a chroot
   (Calamares, ISO build) `loginctl` fails and the script exits. Template exception like kiro-ohmychadwm-hook:
   `set -uo pipefail`, no ERR trap, always `exit 0`. Tested on the dev box: the pending Qtile item toasted at once.
+- `usr/bin/kiro-news` `notify_item`: asks `org.freedesktop.Notifications.GetCapabilities` once per run (`gdbus`,
+  glib2 comes with libnotify). `body-markup` → title and link go through `html_escape` (a `&` used to be raw
+  markup); `body-hyperlinks` → the link becomes `<a href>`; no markup → plain text so no tags show. `actions`
+  → the `default=Open` action as before; no actions → a plain toast. A daemon that does not answer gets plain
+  text plus the action.
 
 ### Files Modified
 - `usr/share/kiro-news/feed.json`
@@ -36,6 +44,7 @@
 - `usr/share/libalpm/hooks/kiro-news.hook` (new)
 - `usr/share/libalpm/scripts/kiro-news-hook` (new)
 - `README.md`
+- `usr/bin/kiro-news`
 
 ## 2026.10.17
 
