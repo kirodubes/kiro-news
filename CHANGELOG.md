@@ -5,7 +5,7 @@
 ### What Changed
 - New Kiro News item: **Kiro ISO Builder: see what your ISO ships before you build it**. A plain-language
   summary of the KIB release promoted from the beta builder (package groups, edition extras, saved build summaries,
-  default session, cleaner login screen), linking to the kiro-iso-builder repo.
+  default session, cleaner login screen). Links to Erik's KIB video, with the kiro-iso-builder repo in the text.
 - New Kiro News item: **Qtile users: do not upgrade python-xcffib to 1.7.0**. Arch's python-xcffib 1.7.0-1
   (2026-10-15) breaks cairocffi, so Qtile dies at startup. The item tells users to hold the package back, or to
   go back to 1.6.2 from the Arch archive with an `IgnorePkg` line, and to drop that line once Arch ships 1.7.1+.
