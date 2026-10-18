@@ -8,13 +8,21 @@
   go back to 1.6.2 from the Arch archive with an `IgnorePkg` line, and to drop that line once Arch ships 1.7.1+.
   It goes with Erik's warning video; Kiro does not hold the package itself.
 
+- **Kiro News now toasts its newest item on a fresh install.** News can be critical (like the Qtile warning), so
+  a new user or a new install sees the latest Kiro item at once instead of it being silently marked as read.
+  Arch Linux News keeps the silent baseline.
+
 ### Technical Details
 - `usr/share/kiro-news/feed.json`: item `2026-10-18-qtile-python-xcffib-1-7-0` at the top. Its `url` is the warning
   video (https://youtu.be/ccp33Or9REE); the summary links the video, the qtile
   (#6075) and Arch (python-xcffib work item 2) bug reports. The 1.6.2 downgrade was verified on a kiro-next VM.
 
+- `etc/kiro-news/sources.conf`: the `kiro` line gets the optional 6th field `notify` (the KiroTux feed already uses
+  it). Existing users keep their `~/.cache` read-state, so nothing is shown twice.
+
 ### Files Modified
 - `usr/share/kiro-news/feed.json`
+- `etc/kiro-news/sources.conf`
 
 ## 2026.10.17
 
