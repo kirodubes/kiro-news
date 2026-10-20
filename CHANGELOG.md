@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.10.20
+
+### What Changed
+- New Kiro News item: **Kiro Plasma ISO v26.10.20 is out**. Announces the new fully-themed Plasma ISO (Plasma 6.8.0,
+  linux 7.2.11, open NVIDIA driver, the Kiro Plasma add-ons and five themes) and links the SourceForge Plasma folder.
+
+### Technical Details
+- `usr/share/kiro-news/feed.json`: item `2026-10-20-kiro-plasma-iso-v26-10-20` at the top. Versions come from the
+  built ISO's pkglist (`kiro-v26.10.20-x86_64.iso.pkglist.txt`, Kiro ISO Builder, editions=plasma), not the web.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`
+- `CHANGELOG.md`
+
 ## 2026.10.18
 
 ### What Changed
