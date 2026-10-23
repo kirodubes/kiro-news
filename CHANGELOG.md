@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026.10.23
+
+### What Changed
+- New Kiro News item: **KiroTux Wayfire v26.10.23 is out**. Announces the fifth KiroTux edition (Wayfire with its
+  3D effects and waybar, colours from the wallpaper) and Kirotux Wayfire Premium, with the Ko-fi link and the
+  website page. The same item, with a shorter text, is in KiroTux News.
+
+### Technical Details
+- `usr/share/kiro-news/feed.json`: item `2026-10-23-kirotux-wayfire-v26-10-23` at the top. Title follows the
+  release pattern, so `check-news-releases.sh` matches it to `kirotux-wayfire-v26.10.23-x86_64.iso` (OK) and to the
+  kirotux-news item with the same id and title.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`, `CHANGELOG.md`
+
 ## 2026.10.20
 
 ### What Changed

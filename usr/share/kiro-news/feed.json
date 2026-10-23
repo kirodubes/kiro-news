@@ -1,6 +1,13 @@
 {
   "items": [
     {
+      "id": "2026-10-23-kirotux-wayfire-v26-10-23",
+      "title": "KiroTux Wayfire v26.10.23 is out",
+      "summary": "<p>A fifth KiroTux edition is available: <strong>KiroTux Wayfire v26.10.23</strong>.</p><p>KiroTux is built on Kiro, with the same packages, repositories and rolling Arch Linux base. It is put together and tested as one ISO for one Wayland desktop: here <strong>Wayfire</strong>, a compositor with real 3D effects (desktop cube, an overview of every workspace, wobbly windows, blur and zoom), with <strong>waybar</strong>. Windows tile by themselves, and the bar, notifications and terminal take their colours from your wallpaper: Alt + N gives you a new wallpaper and the desktop recolours with it.</p><p>It comes with <strong>Kirotux Wayfire Premium</strong> (<strong>Ctrl + Alt + H</strong>), a settings app made for Wayfire:</p><ul><li>Theme, icons, cursor and font; Light or Dark recolours your apps, waybar, the notifications and Alacritty together</li><li>Window style: borders, gaps, blur and the open/close animations</li><li>Wallpapers, keyboard layouts and one-click looks, with Undo</li><li>Displays, mouse and touchpad, power and night light</li><li>Default apps, startup apps and which screen an app opens on</li></ul><p>The desktop config itself, <strong>kiro-wayfire</strong>, stays free on Kiro.</p><p>KiroTux works with donations: you choose the amount, above a minimum donation.</p><p><a href=\"https://ko-fi.com/s/3753d043e6\">Get KiroTux Wayfire on Ko-fi</a> &middot; <a href=\"https://kiroproject.be/kirotux-wayfire.html\">More about KiroTux Wayfire</a></p>",
+      "url": "https://ko-fi.com/s/3753d043e6",
+      "date": "2026-10-23"
+    },
+    {
       "id": "2026-10-20-kiro-plasma-iso-v26-10-20",
       "title": "Kiro Plasma ISO v26.10.20 is out",
       "summary": "<p>A new <strong>Kiro Plasma ISO</strong> is out: <strong>kiro-v26.10.20</strong>, the fully-themed KDE Plasma edition of Kiro.</p><p>It ships <strong>Plasma 6.8.0</strong> on the <strong>linux 7.2.11</strong> kernel, with Mesa 26.2.5 and the open NVIDIA driver (615.78) for NVIDIA cards. The live session boots straight into Plasma.</p><p>Kiro's Plasma look comes ready to use: Kiro's Dolphin, Konsole, keybindings, service menus, system settings and window management, plus five themes to pick from (Sweet, Layan, Nord, WhiteSur and Win11) and the Surfn Plasma icon themes.</p><p>The ArchLinux Tweak Tool, Calamares and the rest of the Kiro apps are on it as usual.</p><p>Already running Kiro Plasma? No need to reinstall, just update your system: <code>sudo pacman -Syu</code></p><p><a href=\"https://sourceforge.net/projects/kiro/files/Plasma/\">Download the Plasma ISO on SourceForge</a></p>",
