@@ -9,6 +9,8 @@
   English (it comes from archlinux.org).
 - kiro-news' own texts are translated too: the news page heading and its notes, the notification's **Open** button and
   the "No web browser found" warning. The menu entry gained Hungarian and Romanian.
+- The menu entry now carries `Name[xx]` and translated `Keywords[xx]` for all 13 languages, so menu search finds
+  Kiro News by the local word for "news" (nieuws, Nachrichten, ニュース, 新闻 …).
 - New Kiro News item: **Kiro apps now speak 13 languages**. Ohmychadwm Tweak Tool, Alacritty Tweak Tool and
   KiroTux Drive follow the system language, each with a language dropdown and Restart now; the menu entries are
   translated; the website speaks eight languages. Points to the next `pacman -Syu`.
@@ -27,8 +29,8 @@
   package, so the next kiro-news build publishes it.
 
 ### Files Modified
-- `usr/bin/kiro-news`, `usr/share/kiro-news/feed.json`, `usr/share/applications/kiro-news.desktop`, `po/` (new),
-  `usr/share/locale/*/LC_MESSAGES/kiro-news.mo` (new), `README.md`, `CLAUDE.md`, `CHANGELOG.md`
+- `usr/bin/kiro-news`, `usr/share/kiro-news/feed.json`, `usr/share/applications/kiro-news.desktop`, `.codespellrc`,
+  `po/` (new), `usr/share/locale/*/LC_MESSAGES/kiro-news.mo` (new), `README.md`, `CLAUDE.md`, `CHANGELOG.md`
 
 ## 2026.10.23
 
