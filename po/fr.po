@@ -1,0 +1,46 @@
+# French translations for kiro-news package.
+# Copyright (C) 2026 THE kiro-news'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kiro-news package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiro-news\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-31 17:46+0100\n"
+"PO-Revision-Date: 2026-10-31 17:46+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: usr/bin/kiro-news:210
+msgid "Install a web browser to open:"
+msgstr "Installez un navigateur web pour ouvrir :"
+
+#: usr/bin/kiro-news:210
+msgid "No web browser found"
+msgstr "Aucun navigateur web trouvé"
+
+#: usr/bin/kiro-news:237
+msgid "Open"
+msgstr "Ouvrir"
+
+#: usr/bin/kiro-news:347
+msgid "Kiro & Arch news"
+msgstr "Actualités de Kiro et d’Arch"
+
+#: usr/bin/kiro-news:357
+msgid "Unavailable right now."
+msgstr "Indisponible pour le moment."
+
+#: usr/bin/kiro-news:360
+msgid "Not available yet."
+msgstr "Pas encore disponible."
+
+#: usr/bin/kiro-news:367
+msgid "No items."
+msgstr "Aucun article."

@@ -1,0 +1,3 @@
+[codespell]
+# The .po catalogs and the feed translations are foreign text; codespell only knows English typos.
+skip = *.po,*.pot,*/feed.json,./usr/share/kiro-news/feed.json

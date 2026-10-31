@@ -33,6 +33,9 @@ CONFIG_FILE="${KIRO_NEWS_CONFIG:-/etc/kiro-news/sources.conf}"
 SOURCES_DIR="${KIRO_NEWS_SOURCES_DIR:-$(dirname -- "$CONFIG_FILE")/sources.d}"
 PUBKEY="${KIRO_NEWS_PUBKEY:-/usr/share/kiro-news/kiro.pub}"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/kiro-news"
+# Translations: the catalogs next to the script (/usr/share/locale once installed, the repo's copy from git).
+TEXTDOMAIN="kiro-news"
+TEXTDOMAINDIR="${SCRIPT_DIR}/../share/locale"
 
 # ── Colors (tput, silent fallback when not a TTY) ───────────────────
 if [[ -t 1 ]] && command -v tput >/dev/null 2>&1; then
@@ -62,6 +65,39 @@ decode_entities() {
 
 html_escape() {
     sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g'
+}
+
+# The user's language as candidates, most specific first (de_AT -> "de_AT de"); a variant without its own
+# translation borrows its sibling's (pt -> pt_BR, zh -> zh_CN), as the Kiro apps do. "en" for C/POSIX/unset.
+news_languages() {
+    local code="" var base
+    for var in "${LANGUAGE:-}" "${LC_ALL:-}" "${LC_MESSAGES:-}" "${LANG:-}"; do
+        var="${var%%:*}"; var="${var%%.*}"; var="${var%%@*}"
+        if [[ -n "$var" && "$var" != C && "$var" != POSIX ]]; then code="$var"; break; fi
+    done
+    [[ -z "$code" ]] && { echo en; return; }
+    base="${code%%_*}"
+    case "$base" in
+        pt) echo "$code $base pt_BR" ;;
+        zh) echo "$code $base zh_CN" ;;
+        *)  echo "$code $base" ;;
+    esac
+}
+NEWS_LANGS="$(news_languages)"
+# For jq: the candidates as a JSON array, so a feed item's "i18n" block can be picked in the user's language.
+NEWS_LANGS_JSON="$(jq -cn --arg s "$NEWS_LANGS" '$s | split(" ")' 2>/dev/null || echo '["en"]')"
+# An item's field in the user's language: .i18n.<lang>.<field> for the first candidate that has it, else the
+# English field. Old items without "i18n" stay English.
+# shellcheck disable=SC2016  # $langs and $f are jq variables, not shell ones
+JQ_TR='def tr($f): (first(($langs[] as $l | .i18n[$l][$f]?) | select(. != null and . != "")) // .[$f]);'
+
+# One of kiro-news' own texts in the user's language; plain English when gettext is not installed.
+_t() {
+    if command -v gettext >/dev/null 2>&1; then
+        LANGUAGE="${NEWS_LANGS// /:}" TEXTDOMAIN="$TEXTDOMAIN" TEXTDOMAINDIR="$TEXTDOMAINDIR" gettext "$1"
+    else
+        printf '%s' "$1"
+    fi
 }
 
 # Fetch a source body. A local path (or file://) is read straight off disk —
@@ -99,7 +135,7 @@ parse_rss() {
 parse_json() {
     local feed="$1" id title url
     id="$(printf '%s'    "$feed" | jq -r '.items[0].id    // empty' 2>/dev/null || true)"
-    title="$(printf '%s' "$feed" | jq -r '.items[0].title // empty' 2>/dev/null || true)"
+    title="$(printf '%s' "$feed" | jq -r --argjson langs "$NEWS_LANGS_JSON" "${JQ_TR}"' .items[0] | tr("title") // empty' 2>/dev/null || true)"
     url="$(printf '%s'   "$feed" | jq -r '.items[0].url   // empty' 2>/dev/null || true)"
     [[ -z "$title" || -z "$id" ]] && return 1
     printf '%s\t%s\t%s\n' "$id" "$title" "$url"
@@ -125,8 +161,8 @@ parse_rss_items() {
 # @tsv intact — @tsv would otherwise collapse real newlines back into literal \n.
 parse_json_items() {
     local feed="$1" n="${2:-8}"
-    printf '%s' "$feed" | jq -r --argjson n "$n" \
-        '.items[:$n][] | [.title, (.url // ""), (.date // ""), (.summary // "" | @base64)] | @tsv' 2>/dev/null || true
+    printf '%s' "$feed" | jq -r --argjson n "$n" --argjson langs "$NEWS_LANGS_JSON" "${JQ_TR}"'
+        .items[:$n][] | [tr("title"), (.url // ""), (.date // ""), (tr("summary") // "" | @base64)] | @tsv' 2>/dev/null || true
 }
 
 # Verify a signed feed body against the shipped public key. The detached
@@ -171,7 +207,7 @@ open_url() {
     shown="$target"
     [[ "$(notify_caps)" == *"'body-markup'"* ]] && shown="$(printf '%s' "$target" | html_escape)"
     notify-send --app-name="Kiro News" --icon=dialog-warning --urgency=normal --expire-time=60000 \
-        "No web browser found" "Install a web browser to open:"$'\n'"${shown}"
+        "$(_t "No web browser found")" "$(_t "Install a web browser to open:")"$'\n'"${shown}"
 }
 
 notify_item() {
@@ -198,7 +234,7 @@ notify_item() {
         (
             local action
             action="$(timeout 600 notify-send --app-name="$name" --icon=dialog-information \
-                --urgency=normal --expire-time=60000 --action=default=Open \
+                --urgency=normal --expire-time=60000 --action=default="$(_t "Open")" \
                 "$name" "${body_title}"$'\n'"${body_link}" 2>/dev/null || true)"
             [[ -n "$action" ]] && open_url "$link"
             true
@@ -287,8 +323,9 @@ cmd_show() {
     [[ -r "$CONFIG_FILE" ]] || { log_error "no config at $CONFIG_FILE"; exit 1; }
     local out="$CACHE_DIR/news.html"
     {
+        printf '<!DOCTYPE html><html lang="%s"><head><meta charset="utf-8"><title>Kiro News</title>\n' \
+            "$(l="${NEWS_LANGS%% *}"; printf '%s' "${l//_/-}")"
         cat <<'HTML'
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Kiro News</title>
 <style>
 body{font-family:system-ui,sans-serif;max-width:820px;margin:2rem auto;padding:0 1rem;
 background:#1e1e2e;color:#cdd6f4;line-height:1.5}
@@ -305,8 +342,9 @@ li>a{font-weight:700;font-size:1.08em}
 .summary ul{list-style:disc;padding-left:1.4rem;margin:0 0 .8rem}
 .summary li{margin:.3rem 0}
 .summary a{color:#89b4fa;text-decoration:underline}.summary a:hover{color:#a6e3a1}
-</style></head><body><h1>Kiro &amp; Arch news</h1>
+</style></head><body>
 HTML
+        printf '<h1>%s</h1>\n' "$(_t "Kiro & Arch news" | html_escape)"
         local line id type url name verify _first body items title link date
         while IFS= read -r line; do
             line="${line%%#*}"
@@ -316,17 +354,17 @@ HTML
             name="${name:-$id}"; verify="${verify:-none}"
             echo "<h2>$(printf '%s' "$name" | html_escape)</h2>"
             if ! body="$(fetch_body "$url")"; then
-                echo '<p class="muted">Unavailable right now.</p>'; continue
+                printf '<p class="muted">%s</p>\n' "$(_t "Unavailable right now." | html_escape)"; continue
             fi
             if [[ "$verify" == "signed" ]]; then
-                verify_signed "$url" "$body" >/dev/null 2>&1 || { echo '<p class="muted">Not available yet.</p>'; continue; }
+                verify_signed "$url" "$body" >/dev/null 2>&1 || { printf '<p class="muted">%s</p>\n' "$(_t "Not available yet." | html_escape)"; continue; }
             fi
             case "$type" in
                 rss)  items="$(parse_rss_items  "$body" 8)" ;;
                 json) items="$(parse_json_items "$body" 8)" ;;
                 *)    items="" ;;
             esac
-            [[ -z "$items" ]] && { echo '<p class="muted">No items.</p>'; continue; }
+            [[ -z "$items" ]] && { printf '<p class="muted">%s</p>\n' "$(_t "No items." | html_escape)"; continue; }
             echo '<ul class="items">'
             while IFS=$'\t' read -r title link date summary; do
                 [[ -z "$title" ]] && continue

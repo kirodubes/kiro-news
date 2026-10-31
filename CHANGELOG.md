@@ -3,16 +3,32 @@
 ## 2026.10.31
 
 ### What Changed
+- **Kiro News speaks your language.** Kiro's own news items can carry translations, and the client shows the one for
+  your system language (Portugal reads Brazilian Portuguese, Taiwan/Hong Kong simplified Chinese), English otherwise.
+  The newest item, "Kiro apps now speak 13 languages", is translated into all 13 languages. Arch Linux news stays
+  English (it comes from archlinux.org).
+- kiro-news' own texts are translated too: the news page heading and its notes, the notification's **Open** button and
+  the "No web browser found" warning. The menu entry gained Hungarian and Romanian.
 - New Kiro News item: **Kiro apps now speak 13 languages**. Ohmychadwm Tweak Tool, Alacritty Tweak Tool and
   KiroTux Drive follow the system language, each with a language dropdown and Restart now; the menu entries are
   translated; the website speaks eight languages. Points to the next `pacman -Syu`.
 
 ### Technical Details
+- Feed format: an item may have `"i18n": {"<lang>": {"title": …, "summary": …}}`. `news_languages()` turns
+  LANGUAGE / LC_ALL / LC_MESSAGES / LANG into candidates (de_AT → de_AT de; pt → … pt_BR; zh → … zh_CN), and the jq
+  helper `tr()` (`$JQ_TR`) takes the first candidate the item has, else the English field. Used for the newest-item
+  notification and the news page.
+- Own texts through `_t()` = `gettext` with domain `kiro-news` and catalogs next to the script
+  (`usr/bin/../share/locale`); plain English when gettext is missing. `po/`: template, 13 `.po` files and
+  `make-mo.sh` (xgettext `--language=Shell --keyword=_t`; the menu entry keeps its hand-written translations).
+- The news page's `<html lang>` follows the language (`de`, `pt-PT`). Tested with a throwaway HOME, a config holding
+  only the repo feed and fake `xdg-open` / `notify-send`.
 - Item `2026-10-31-kiro-apps-in-13-languages` added on top of `usr/share/kiro-news/feed.json`; the feed ships in the
   package, so the next kiro-news build publishes it.
 
 ### Files Modified
-- `usr/share/kiro-news/feed.json`, `CHANGELOG.md`
+- `usr/bin/kiro-news`, `usr/share/kiro-news/feed.json`, `usr/share/applications/kiro-news.desktop`, `po/` (new),
+  `usr/share/locale/*/LC_MESSAGES/kiro-news.mo` (new), `README.md`, `CLAUDE.md`, `CHANGELOG.md`
 
 ## 2026.10.23
 

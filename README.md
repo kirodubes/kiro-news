@@ -57,3 +57,9 @@ more — the core always stays free for everyone.
 - Ko-fi: https://ko-fi.com/erikdubois
 - PayPal: https://www.paypal.me/erikdubois
 <!-- KIRO-FUNDING-FOOTER:END -->
+
+## Languages
+
+Kiro's own news items and kiro-news' texts follow your system language (Dutch, German, Spanish, French, Portuguese
+(Brazil), Russian, Hungarian, Italian, Turkish, Polish, Japanese, Chinese (simplified), Romanian), English otherwise.
+Arch Linux news stays in English, as archlinux.org publishes it.

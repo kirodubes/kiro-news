@@ -1,0 +1,45 @@
+# Chinese translations for kiro-news package.
+# Copyright (C) 2026 THE kiro-news'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kiro-news package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiro-news\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-31 17:46+0100\n"
+"PO-Revision-Date: 2026-10-31 17:46+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: usr/bin/kiro-news:210
+msgid "Install a web browser to open:"
+msgstr "请安装网页浏览器以打开："
+
+#: usr/bin/kiro-news:210
+msgid "No web browser found"
+msgstr "未找到网页浏览器"
+
+#: usr/bin/kiro-news:237
+msgid "Open"
+msgstr "打开"
+
+#: usr/bin/kiro-news:347
+msgid "Kiro & Arch news"
+msgstr "Kiro 与 Arch 新闻"
+
+#: usr/bin/kiro-news:357
+msgid "Unavailable right now."
+msgstr "暂时无法获取。"
+
+#: usr/bin/kiro-news:360
+msgid "Not available yet."
+msgstr "尚不可用。"
+
+#: usr/bin/kiro-news:367
+msgid "No items."
+msgstr "没有条目。"
