@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.10.31
+
+### What Changed
+- New Kiro News item: **Kiro apps now speak 13 languages**. Ohmychadwm Tweak Tool, Alacritty Tweak Tool and
+  KiroTux Drive follow the system language, each with a language dropdown and Restart now; the menu entries are
+  translated; the website speaks eight languages. Points to the next `pacman -Syu`.
+
+### Technical Details
+- Item `2026-10-31-kiro-apps-in-13-languages` added on top of `usr/share/kiro-news/feed.json`; the feed ships in the
+  package, so the next kiro-news build publishes it.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`, `CHANGELOG.md`
+
 ## 2026.10.23
 
 ### What Changed

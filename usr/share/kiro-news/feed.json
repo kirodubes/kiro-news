@@ -1,6 +1,13 @@
 {
   "items": [
     {
+      "id": "2026-10-31-kiro-apps-in-13-languages",
+      "title": "Kiro apps now speak 13 languages",
+      "summary": "<p>Three Kiro apps now follow your system language: <strong>Ohmychadwm Tweak Tool</strong>, <strong>Alacritty Tweak Tool</strong> and <strong>KiroTux Drive</strong>.</p><ul><li>Languages: Dutch, German, Spanish, French, Portuguese (Brazil), Russian, Hungarian, Italian, Turkish, Polish, Japanese, Chinese (simplified) and Romanian, besides English. Portugal gets Brazilian Portuguese, Taiwan and Hong Kong simplified Chinese.</li><li>Every app has a <strong>language dropdown</strong>: pick another language there and press <strong>Restart now</strong>. In Ohmychadwm Tweak Tool it sits under <strong>Status</strong>, in the other two at the top of the window.</li><li>The menu entries are translated too.</li></ul><p>The Kiro website speaks eight languages as well: pick yours in the language menu at the top of kiroproject.be.</p><p>You get the new versions with your next <strong>sudo pacman -Syu</strong>. More Kiro apps follow.</p>",
+      "url": "https://kiroproject.be/",
+      "date": "2026-10-31"
+    },
+    {
       "id": "2026-10-23-kirotux-wayfire-v26-10-23",
       "title": "KiroTux Wayfire v26.10.23 is out",
       "summary": "<p>A fifth KiroTux edition is available: <strong>KiroTux Wayfire v26.10.23</strong>.</p><p>KiroTux is built on Kiro, with the same packages, repositories and rolling Arch Linux base. It is put together and tested as one ISO for one Wayland desktop: here <strong>Wayfire</strong>, a compositor with real 3D effects (desktop cube, an overview of every workspace, wobbly windows, blur and zoom), with <strong>waybar</strong>. Windows tile by themselves, and the bar, notifications and terminal take their colours from your wallpaper: Alt + N gives you a new wallpaper and the desktop recolours with it.</p><p>It comes with <strong>Kirotux Wayfire Premium</strong> (<strong>Ctrl + Alt + H</strong>), a settings app made for Wayfire:</p><ul><li>Theme, icons, cursor and font; Light or Dark recolours your apps, waybar, the notifications and Alacritty together</li><li>Window style: borders, gaps, blur and the open/close animations</li><li>Wallpapers, keyboard layouts and one-click looks, with Undo</li><li>Displays, mouse and touchpad, power and night light</li><li>Default apps, startup apps and which screen an app opens on</li></ul><p>The desktop config itself, <strong>kiro-wayfire</strong>, stays free on Kiro.</p><p>KiroTux works with donations: you choose the amount, above a minimum donation.</p><p><a href=\"https://ko-fi.com/s/3753d043e6\">Get KiroTux Wayfire on Ko-fi</a> &middot; <a href=\"https://kiroproject.be/kirotux-wayfire.html\">More about KiroTux Wayfire</a></p>",
