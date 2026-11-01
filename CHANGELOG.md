@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026.11.01
+
+### What Changed
+- **The news page has a language switch**, like the website's: a globe button top right lists English and the 13
+  languages, each in its own name. Picking one switches the page at once, with no rebuild or restart. The page
+  still opens in your system language, and a choice you make is remembered the next time you open it. Items not
+  translated into the chosen language show in English; Arch Linux news stays English.
+
+### Technical Details
+- `kiro-news show` now writes every language into the one page: each translatable text is a `.tr` group whose
+  `data-l="<lang>"` children hold the versions, and only the starting language is visible (`hidden` on the others).
+  A small inline script shows the chosen language's child per group, else the English one, updates `<html lang>`,
+  the button label and `aria-current`, and keeps the choice in `localStorage` (`kiro-news-lang`, wrapped in
+  try/catch for browsers that block it on `file://`).
+- Feed items: `parse_json_items` (TSV + base64 summary) became `parse_json_items_html`, a jq filter that emits the
+  `<li>` HTML directly, with every language the item carries (English + its `i18n` block); titles and dates are
+  escaped with `@html`, summaries stay trusted HTML as before.
+- Own texts: new `_tall` emits every available gettext translation as spans (`LANGUAGE=<lang> gettext` per
+  language); `po/make-mo.sh` extracts `--keyword=_tall` too, so the page strings don't go obsolete.
+- Starting language: `news_pick()` = first `news_languages()` candidate in `NEWS_UI_LANGS`, else English. Native
+  names for the menu in `LANG_NAMES`.
+- Tested headless: render with `LANGUAGE=de` (all 14 heading versions, German visible), then headless Chromium
+  clicking Nederlands: Dutch heading and translated item, English fallback on the untranslated items, label NL.
+
+### Files Modified
+- `usr/bin/kiro-news`
+- `po/make-mo.sh`, `po/*.po`, `po/kiro-news.pot` (regenerated: only source line references moved)
+
 ## 2026.10.31
 
 ### What Changed

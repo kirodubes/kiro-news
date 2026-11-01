@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiro-news\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-31 17:46+0100\n"
+"POT-Creation-Date: 2026-11-01 06:25+0100\n"
 "PO-Revision-Date: 2026-10-31 17:46+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: Polish\n"
@@ -18,30 +18,30 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
 
-#: usr/bin/kiro-news:210
+#: usr/bin/kiro-news:262
 msgid "Install a web browser to open:"
 msgstr "Zainstaluj przeglądarkę, aby otworzyć:"
 
-#: usr/bin/kiro-news:210
+#: usr/bin/kiro-news:262
 msgid "No web browser found"
 msgstr "Nie znaleziono przeglądarki"
 
-#: usr/bin/kiro-news:237
+#: usr/bin/kiro-news:289
 msgid "Open"
 msgstr "Otwórz"
 
-#: usr/bin/kiro-news:347
+#: usr/bin/kiro-news:410
 msgid "Kiro & Arch news"
 msgstr "Wiadomości o Kiro i Arch"
 
-#: usr/bin/kiro-news:357
+#: usr/bin/kiro-news:432
 msgid "Unavailable right now."
 msgstr "Chwilowo niedostępne."
 
-#: usr/bin/kiro-news:360
+#: usr/bin/kiro-news:435
 msgid "Not available yet."
 msgstr "Jeszcze niedostępne."
 
-#: usr/bin/kiro-news:367
+#: usr/bin/kiro-news:442
 msgid "No items."
 msgstr "Brak wpisów."

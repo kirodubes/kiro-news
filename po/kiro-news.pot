@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiro-news\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-31 17:46+0100\n"
+"POT-Creation-Date: 2026-11-01 06:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,30 +17,30 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: usr/bin/kiro-news:210
+#: usr/bin/kiro-news:262
 msgid "Install a web browser to open:"
 msgstr ""
 
-#: usr/bin/kiro-news:210
+#: usr/bin/kiro-news:262
 msgid "No web browser found"
 msgstr ""
 
-#: usr/bin/kiro-news:237
+#: usr/bin/kiro-news:289
 msgid "Open"
 msgstr ""
 
-#: usr/bin/kiro-news:347
+#: usr/bin/kiro-news:410
 msgid "Kiro & Arch news"
 msgstr ""
 
-#: usr/bin/kiro-news:357
+#: usr/bin/kiro-news:432
 msgid "Unavailable right now."
 msgstr ""
 
-#: usr/bin/kiro-news:360
+#: usr/bin/kiro-news:435
 msgid "Not available yet."
 msgstr ""
 
-#: usr/bin/kiro-news:367
+#: usr/bin/kiro-news:442
 msgid "No items."
 msgstr ""

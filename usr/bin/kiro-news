@@ -91,6 +91,23 @@ NEWS_LANGS_JSON="$(jq -cn --arg s "$NEWS_LANGS" '$s | split(" ")' 2>/dev/null ||
 # shellcheck disable=SC2016  # $langs and $f are jq variables, not shell ones
 JQ_TR='def tr($f): (first(($langs[] as $l | .i18n[$l][$f]?) | select(. != null and . != "")) // .[$f]);'
 
+# The languages the news page's switch offers besides English, with their own names for the menu.
+NEWS_UI_LANGS=(nl de es fr pt_BR ru hu it tr pl ja zh_CN ro)
+declare -A LANG_NAMES=([en]="English" [nl]="Nederlands" [de]="Deutsch" [es]="Español" [fr]="Français"
+    [pt_BR]="Português (Brasil)" [ru]="Русский" [hu]="Magyar" [it]="Italiano" [tr]="Türkçe" [pl]="Polski"
+    [ja]="日本語" [zh_CN]="简体中文" [ro]="Română")
+# The page's starting language: the first system-language candidate the switch offers, else English.
+news_pick() {
+    local c l
+    for c in $NEWS_LANGS; do
+        for l in "${NEWS_UI_LANGS[@]}"; do
+            [[ "$c" == "$l" ]] && { echo "$l"; return; }
+        done
+    done
+    echo en
+}
+NEWS_PICK="$(news_pick)"
+
 # One of kiro-news' own texts in the user's language; plain English when gettext is not installed.
 _t() {
     if command -v gettext >/dev/null 2>&1; then
@@ -98,6 +115,25 @@ _t() {
     else
         printf '%s' "$1"
     fi
+}
+
+# One of kiro-news' own texts in every language, as spans the page's switch picks from. A language without a
+# translation is left out, so the switch shows the English one there.
+_tall() {
+    local l t shown=en
+    local -A texts=([en]="$1")
+    if command -v gettext >/dev/null 2>&1; then
+        for l in "${NEWS_UI_LANGS[@]}"; do
+            t="$(LANGUAGE="$l" TEXTDOMAIN="$TEXTDOMAIN" TEXTDOMAINDIR="$TEXTDOMAINDIR" gettext "$1")"
+            [[ "$t" != "$1" ]] && texts[$l]="$t"
+        done
+    fi
+    [[ -n "${texts[$NEWS_PICK]:-}" ]] && shown="$NEWS_PICK"
+    for l in en "${NEWS_UI_LANGS[@]}"; do
+        [[ -n "${texts[$l]:-}" ]] || continue
+        printf '<span data-l="%s"%s>%s</span>' "$l" "$([[ "$l" == "$shown" ]] || printf ' hidden')" \
+            "$(printf '%s' "${texts[$l]}" | html_escape)"
+    done
 }
 
 # Fetch a source body. A local path (or file://) is read straight off disk —
@@ -156,13 +192,29 @@ parse_rss_items() {
     done <<< "$items"
 }
 
-# List up to N newest JSON items as "title<TAB>url<TAB>date<TAB>summary" lines.
-# The summary is base64-encoded so multi-line HTML (e.g. <pre> blocks) survives
-# @tsv intact — @tsv would otherwise collapse real newlines back into literal \n.
-parse_json_items() {
+# Up to N newest JSON items as <li> HTML for the news page. Title and summary carry every language the item has
+# (English plus its "i18n" block) as data-l children of a .tr group, so the page's switch can change language
+# without rebuilding; only the starting language is visible. The summary may contain light inline HTML
+# (<strong>, <pre>): the feed ships in the package, so it's trusted content and not escaped.
+parse_json_items_html() {
     local feed="$1" n="${2:-8}"
-    printf '%s' "$feed" | jq -r --argjson n "$n" --argjson langs "$NEWS_LANGS_JSON" "${JQ_TR}"'
-        .items[:$n][] | [tr("title"), (.url // ""), (.date // ""), (tr("summary") // "" | @base64)] | @tsv' 2>/dev/null || true
+    # shellcheck disable=SC2016  # jq variables, not shell ones
+    printf '%s' "$feed" | jq -r --argjson n "$n" --arg pick "$NEWS_PICK" '
+        def val($it; $l; $f): if $l == "en" then ($it[$f] // "") else ($it.i18n[$l][$f]? // "") end;
+        def langs($it; $f): ["en"] + (($it.i18n // {}) | keys | map(select(. != "en")))
+            | map(. as $l | select(val($it; $l; $f) != ""));
+        def shown($it; $f): if (langs($it; $f) | index($pick)) then $pick else "en" end;
+        def hid($l; $s): if $l == $s then "" else " hidden" end;
+        .items[:$n][] | select((.title // "") != "") | . as $it
+        | shown($it; "title") as $st | shown($it; "summary") as $ss | langs($it; "summary") as $sl
+        | "<li><a class=\"tr\" href=\"\((.url // "") | @html)\">"
+          + (langs($it; "title") | map(. as $l
+              | "<span data-l=\"\($l)\"\(hid($l; $st))>\(val($it; $l; "title") | @html)</span>") | join(""))
+          + "</a><span class=\"date\">\((.date // "") | @html)</span>"
+          + (if ($sl | length) > 0 then "<div class=\"tr\">" + ($sl | map(. as $l
+              | "<div class=\"summary\" data-l=\"\($l)\"\(hid($l; $ss))>\(val($it; $l; "summary"))</div>")
+              | join("")) + "</div>" else "" end)
+          + "</li>"' 2>/dev/null || true
 }
 
 # Verify a signed feed body against the shipped public key. The detached
@@ -323,10 +375,21 @@ cmd_show() {
     [[ -r "$CONFIG_FILE" ]] || { log_error "no config at $CONFIG_FILE"; exit 1; }
     local out="$CACHE_DIR/news.html"
     {
-        printf '<!DOCTYPE html><html lang="%s"><head><meta charset="utf-8"><title>Kiro News</title>\n' \
-            "$(l="${NEWS_LANGS%% *}"; printf '%s' "${l//_/-}")"
+        printf '<!DOCTYPE html><html lang="%s" data-lang="%s"><head><meta charset="utf-8"><title>Kiro News</title>\n' \
+            "${NEWS_PICK//_/-}" "$NEWS_PICK"
         cat <<'HTML'
 <style>
+header{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+details.lang{position:relative;flex:none}
+details.lang summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;
+padding:.35rem .55rem;border-radius:6px;color:#bac2de;font-size:.8rem;font-weight:700}
+details.lang summary::-webkit-details-marker{display:none}
+details.lang summary:hover,details.lang[open] summary{background:#313244;color:#cdd6f4}
+details.lang summary svg{width:1rem;height:1rem}
+.menu{position:absolute;right:0;z-index:5;margin-top:.4rem;background:#181825;border:1px solid #313244;
+border-radius:8px;padding:.4rem;min-width:11rem;box-shadow:0 8px 24px #0006}
+.menu a{display:block;padding:.35rem .7rem;border-radius:6px;white-space:nowrap;font-size:.9rem}
+.menu a:hover{background:#313244}.menu a[aria-current]{color:#a6e3a1;font-weight:700}
 body{font-family:system-ui,sans-serif;max-width:820px;margin:2rem auto;padding:0 1rem;
 background:#1e1e2e;color:#cdd6f4;line-height:1.5}
 h1{background:linear-gradient(90deg,#89b4fa,#a6e3a1);-webkit-background-clip:text;
@@ -344,7 +407,19 @@ li>a{font-weight:700;font-size:1.08em}
 .summary a{color:#89b4fa;text-decoration:underline}.summary a:hover{color:#a6e3a1}
 </style></head><body>
 HTML
-        printf '<h1>%s</h1>\n' "$(_t "Kiro & Arch news" | html_escape)"
+        printf '<header><h1 class="tr">%s</h1>\n' "$(_tall "Kiro & Arch news")"
+        # The language switch, like the website's globe menu; the script at the end does the switching.
+        printf '<details class="lang"><summary aria-label="Language" title="Language">'
+        printf '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+        printf ' stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/>'
+        printf '<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'
+        printf '</svg><b>%s</b></summary><div class="menu">' "$(l="${NEWS_PICK%%_*}"; printf '%s' "${l^^}")"
+        local l
+        for l in en "${NEWS_UI_LANGS[@]}"; do
+            printf '<a href="#" data-set="%s" lang="%s"%s>%s</a>' "$l" "${l//_/-}" \
+                "$([[ "$l" == "$NEWS_PICK" ]] && printf ' aria-current="true"')" "${LANG_NAMES[$l]}"
+        done
+        printf '</div></details></header>\n'
         local line id type url name verify _first body items title link date
         while IFS= read -r line; do
             line="${line%%#*}"
@@ -354,35 +429,62 @@ HTML
             name="${name:-$id}"; verify="${verify:-none}"
             echo "<h2>$(printf '%s' "$name" | html_escape)</h2>"
             if ! body="$(fetch_body "$url")"; then
-                printf '<p class="muted">%s</p>\n' "$(_t "Unavailable right now." | html_escape)"; continue
+                printf '<p class="muted tr">%s</p>\n' "$(_tall "Unavailable right now.")"; continue
             fi
             if [[ "$verify" == "signed" ]]; then
-                verify_signed "$url" "$body" >/dev/null 2>&1 || { printf '<p class="muted">%s</p>\n' "$(_t "Not available yet." | html_escape)"; continue; }
+                verify_signed "$url" "$body" >/dev/null 2>&1 || { printf '<p class="muted tr">%s</p>\n' "$(_tall "Not available yet.")"; continue; }
             fi
             case "$type" in
                 rss)  items="$(parse_rss_items  "$body" 8)" ;;
-                json) items="$(parse_json_items "$body" 8)" ;;
+                json) items="$(parse_json_items_html "$body" 8)" ;;
                 *)    items="" ;;
             esac
-            [[ -z "$items" ]] && { printf '<p class="muted">%s</p>\n' "$(_t "No items." | html_escape)"; continue; }
+            [[ -z "$items" ]] && { printf '<p class="muted tr">%s</p>\n' "$(_tall "No items.")"; continue; }
             echo '<ul class="items">'
-            while IFS=$'\t' read -r title link date summary; do
-                [[ -z "$title" ]] && continue
-                printf '<li><a href="%s">%s</a><span class="date">%s</span>' \
-                    "$(printf '%s' "$link"  | html_escape)" \
-                    "$(printf '%s' "$title" | html_escape)" \
-                    "$(printf '%s' "$date"  | html_escape)"
-                # Summary is base64-encoded in the TSV stream (RSS feeds leave it
-                # empty); decode it back to its original multi-line HTML here. It
-                # may contain light inline HTML (<strong>, <em>, <pre>) — the feed
-                # is shipped in the package, so it's trusted content, not escaped.
-                [[ -n "$summary" ]] && summary="$(printf '%s' "$summary" | base64 -d 2>/dev/null)"
-                [[ -n "$summary" ]] && printf '<div class="summary">%s</div>' "$summary"
-                echo "</li>"
-            done <<< "$items"
+            if [[ "$type" == json ]]; then
+                printf '%s\n' "$items"
+            else
+                # RSS (Arch news) is upstream and stays English.
+                while IFS=$'\t' read -r title link date; do
+                    [[ -z "$title" ]] && continue
+                    printf '<li><a href="%s">%s</a><span class="date">%s</span></li>\n' \
+                        "$(printf '%s' "$link"  | html_escape)" \
+                        "$(printf '%s' "$title" | html_escape)" \
+                        "$(printf '%s' "$date"  | html_escape)"
+                done <<< "$items"
+            fi
             echo "</ul>"
         done < <(source_lines)
-        echo "</body></html>"
+        # The switch: in each .tr group show the chosen language's child, else the English one. The choice is kept
+        # in localStorage (the page is always the same file); try/catch because a browser may block it on file://.
+        cat <<'HTML'
+<script>
+(function(){
+var d=document.documentElement,m=document.querySelector('details.lang'),key='kiro-news-lang',l=d.dataset.lang;
+function apply(l){
+  d.lang=l.replace('_','-');
+  document.querySelectorAll('.tr').forEach(function(g){
+    var c=g.querySelectorAll(':scope>[data-l]'),has=false;
+    c.forEach(function(e){if(e.dataset.l===l)has=true;});
+    c.forEach(function(e){e.hidden=e.dataset.l!==(has?l:'en');});
+  });
+  m.querySelector('summary b').textContent=l.split('_')[0].toUpperCase();
+  m.querySelectorAll('a[data-set]').forEach(function(a){
+    if(a.dataset.set===l)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');
+  });
+}
+try{l=localStorage.getItem(key)||l;}catch(e){}
+if(m.querySelector('a[data-set="'+l+'"]'))apply(l);
+m.addEventListener('click',function(e){
+  var a=e.target.closest('a[data-set]');if(!a)return;
+  e.preventDefault();apply(a.dataset.set);m.open=false;
+  try{localStorage.setItem(key,a.dataset.set);}catch(x){}
+});
+document.addEventListener('click',function(e){if(m.open&&!m.contains(e.target))m.open=false;});
+})();
+</script>
+</body></html>
+HTML
     } > "$out"
 
     open_url "$out" &

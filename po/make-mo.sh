@@ -100,7 +100,7 @@ POT="$SCRIPT_DIR/$DOMAIN.pot"
 
 extract() {
     log_section "Extracting the strings into $(basename "$POT")"
-    (cd "$REPO" && xgettext --language=Shell --from-code=UTF-8 --keyword=_t \
+    (cd "$REPO" && xgettext --language=Shell --from-code=UTF-8 --keyword=_t --keyword=_tall \
         --add-comments=TRANSLATORS --package-name="$DOMAIN" --sort-by-file \
         -o "$POT" usr/bin/kiro-news)
     # relative paths only: the source comments in the .pot must not carry a home folder

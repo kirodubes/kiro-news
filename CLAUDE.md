@@ -23,3 +23,6 @@ Translations (since 2026-10-31):
   (gettext, domain `kiro-news`). After changing one: `po/make-mo.sh`. The menu entry is hand-translated (edit it
   directly, all 13 languages).
 - Arch Linux news (RSS) is upstream and stays English.
+- The news page (`kiro-news show`) carries every language at once and switches in the browser (globe menu,
+  since 2026-11-01): page texts use `_tall "…"` (not `_t`), feed items come from `parse_json_items_html`. A new
+  language = an entry in `NEWS_UI_LANGS` + `LANG_NAMES`, besides its `.po`.
