@@ -7,8 +7,14 @@
   languages, each in its own name. Picking one switches the page at once, with no rebuild or restart. The page
   still opens in your system language, and a choice you make is remembered the next time you open it. Items not
   translated into the chosen language show in English; Arch Linux news stays English.
+- **Every older Kiro News item is translated too**: the 14 items from before 2026-10-31 now carry all 13 languages,
+  so the whole feed follows your language, not only the newest item.
 
 ### Technical Details
+- Backfill: drafted by Claude (Copilot had no credits left), one draft per language with the approved
+  2026-10-31 item as the style reference. Checked by script: same ids, identical HTML tag sequence, `<code>` spans,
+  version strings and URLs kept. Labels in `<strong>` that name an app button now use the app's own `.po`
+  translation. The pacman warning in the broadcom item stays English, because it is literal tool output.
 - `kiro-news show` now writes every language into the one page: each translatable text is a `.tr` group whose
   `data-l="<lang>"` children hold the versions, and only the starting language is visible (`hidden` on the others).
   A small inline script shows the chosen language's child per group, else the English one, updates `<html lang>`,
@@ -25,6 +31,7 @@
   clicking Nederlands: Dutch heading and translated item, English fallback on the untranslated items, label NL.
 
 ### Files Modified
+- `usr/share/kiro-news/feed.json`
 - `usr/bin/kiro-news`
 - `po/make-mo.sh`, `po/*.po`, `po/kiro-news.pot` (regenerated: only source line references moved)
 
