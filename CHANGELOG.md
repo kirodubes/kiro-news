@@ -3,6 +3,10 @@
 ## 2026.11.01
 
 ### What Changed
+- **Release item: KiroTux v26.11.01 is out, five editions, now in 14 languages** (`2026-11-01-kirotux-v26-11-01`),
+  at the top of the feed with all 13 translations. It announces the November release of all five KiroTux editions
+  and that the Kiro apps (premium app, ATT, KiroTux Drive, Kiro ISO Builder, Kiro News) come in 14 languages, with
+  the list. The kiro-news copy adds one paragraph for Kiro users; kirotux-news carries the same id and title.
 - **The news page has a language switch**, like the website's: a globe button top right lists English and the 13
   languages, each in its own name. Picking one switches the page at once, with no rebuild or restart. The page
   still opens in your system language, and a choice you make is remembered the next time you open it. Items not
