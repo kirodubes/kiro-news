@@ -9,13 +9,17 @@
   - `kiro-skell` for existing users, which backs up first.
 
   It links the video (https://youtu.be/y1r2-4HZCaM) and the new menu section of the ohmychadwm page.
+- **No more empty "Google Drive — Unavailable right now." section on the news page.** A per-user feed whose file
+  was never written (KiroTux Drive installed but not set up) is now left out; it shows up once it has content.
 
 ### Technical Details
 - **Translations:** the item has an `i18n` block for all 13 languages, drafted by Claude. Menu names in `<strong>` come from the menu's own `.po` (e.g. de Erscheinungsbild / Einrichtung / Auf Standard zurücksetzen). Every language's tag sequence was checked against the English, and the video link is in each one.
 - **Rule change:** CLAUDE.md's translation rule now says Claude drafts the `i18n` blocks; Copilot is out.
+- **Skip missing local feeds:** `cmd_show` skips a `~/` source before printing its `<h2>` when the expanded path
+  isn't readable. Remote and packaged sources still show "Unavailable right now." when they fail.
 
 ### Files Modified
-- `usr/share/kiro-news/feed.json`, `CLAUDE.md`
+- `usr/share/kiro-news/feed.json`, `CLAUDE.md`, `usr/bin/kiro-news`
 
 ## 2026.11.01
 

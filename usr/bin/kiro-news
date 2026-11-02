@@ -427,6 +427,8 @@ HTML
             [[ -z "$line" ]] && continue
             IFS='|' read -r id type url name verify _first <<< "$line"
             name="${name:-$id}"; verify="${verify:-none}"
+            # A per-user feed that was never written (e.g. KiroTux Drive not set up) is not news; leave it out.
+            [[ "$url" == "~/"* && ! -r "${url/#\~/$HOME}" ]] && continue
             echo "<h2>$(printf '%s' "$name" | html_escape)</h2>"
             if ! body="$(fetch_body "$url")"; then
                 printf '<p class="muted tr">%s</p>\n' "$(_tall "Unavailable right now.")"; continue
