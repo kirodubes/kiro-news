@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.11.02
+
+### What Changed
+- **News item: Ohmychadwm's menu now speaks your language** (`2026-11-02-ohmychadwm-menu-languages`). It covers:
+  - the system menu in 14 languages, with search in your own language or English;
+  - the Appearance/Setup reorganisation and the fixes: settings that work again, tray apps that survive Super+Shift+R, no tray shadow, Back to default that also resets the theme settings;
+  - `kiro-skell` for existing users, which backs up first.
+
+  It links the video (https://youtu.be/y1r2-4HZCaM) and the new menu section of the ohmychadwm page.
+
+### Technical Details
+- **Translations:** the item has an `i18n` block for all 13 languages, drafted by Claude. Menu names in `<strong>` come from the menu's own `.po` (e.g. de Erscheinungsbild / Einrichtung / Auf Standard zurücksetzen). Every language's tag sequence was checked against the English, and the video link is in each one.
+- **Rule change:** CLAUDE.md's translation rule now says Claude drafts the `i18n` blocks; Copilot is out.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`, `CLAUDE.md`
+
 ## 2026.11.01
 
 ### What Changed

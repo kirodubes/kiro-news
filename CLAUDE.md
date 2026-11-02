@@ -16,8 +16,8 @@ Key invariants:
 
 Translations (since 2026-10-31):
 - **Every new Kiro feed item gets an `i18n` block** with all 13 languages (nl de es fr pt_BR ru hu it tr pl ja zh_CN
-  ro): `"i18n": {"de": {"title": "…", "summary": "…"}, …}`. Draft it with Copilot (GPT-6 Luna) from the English
-  item, keep every HTML tag and the product names, then check tags match before publishing. Items without `i18n`
+  ro): `"i18n": {"de": {"title": "…", "summary": "…"}, …}`. Claude drafts it from the English item (Copilot is
+  out since 2026-11-02, Erik: all translation work by Claude), keep every HTML tag and the product names, then check tags match before publishing. Items without `i18n`
   simply stay English. A release item's version text must match in every language too. Since 2026-11-01 every
   item in both feeds is translated, so new items without `i18n` are the only English ones left.
 - **Button and page names in `<strong>` must be the app's own translation**, taken from its `.po` (premium apps:
