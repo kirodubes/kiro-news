@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.11.03
+
+### What Changed
+- **Better wording in 8 translations of the KiroTux v26.11.01 release item** (pt_BR, ru, hu, tr, pl, ja, zh_CN, ro).
+  Claude drafted them on 2026-11-01 without a second review; Copilot reviewed them now. 18 findings, 14 taken:
+  "rolling base", "update through your Ko-fi donation" and "reaches every Kiro user" read more naturally, Turkish
+  "follows your system language" became "uses your language", and Chinese got the space after a command.
+- **Rule change:** CLAUDE.md's translation rule says Copilot (gpt-6-luna) drafts or reviews again.
+
+### Technical Details
+- Review per paragraph (title + each `<p>`) with `copilot --model gpt-6-luna`, so a fix lands as an exact
+  replacement in both feeds. The 4 rejected fixes rewrote "above a minimum donation" as "must exceed the minimum",
+  which changes the meaning. kirotux-news got the same 9 fixes (it lacks the Kiro-users paragraph).
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`, `CLAUDE.md`
+
 ## 2026.11.02
 
 ### What Changed
