@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.11.04
+
+### What Changed
+- **Release item: KiroTux Hyprland Impasto v26.11.04 is out** (`2026-11-04-kirotux-hyprland-impasto-v26-11-04`), the
+  sixth KiroTux edition: what KiroTux is, Hyprland with the impasto shell (credit to Andreu Massanet, GPL-3.0), what
+  the premium app does there, that `kiro-hyprland-impasto` stays free, and links to Ko-fi, the website page and the
+  launch video. English plus all 13 languages.
+
+### Technical Details
+- Copilot `gpt-6-luna` drafted the 13 languages with the Wayfire launch item's translations as the style reference;
+  Claude checked tags, links, version and names per language and fixed the credit sentence (ru, fr, es, it) and two
+  Dutch phrases. Same id and titles as the kirotux-news item. `~/.bin/check-news-releases.sh` now maps "Hyprland
+  Impasto" to the ISO's short name `hypr-impasto`, so the release check finds `kirotux-hypr-impasto-v26.11.04`.
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`
+
 ## 2026.11.03
 
 ### What Changed
