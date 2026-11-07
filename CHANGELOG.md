@@ -4,8 +4,15 @@
 
 ### What Changed
 - **Kiro News keeps its own menu icon under every icon theme.** The launcher asked for the generic `rss` icon, so each theme drew its own feed symbol: an orange feed in neo-candy, something else in Surfn Kiro or Breeze. Kiro News now ships its own icon: the Kiro logo in orange (Erik's pick). It sits next to the blue, green and white Kiro links in the menu and looks the same everywhere.
+- **Release item: Kiro Atelier is out** (`2026-11-07-kiro-atelier-is-out`): what it paints, that it runs on your own
+  PC with no subscription, account or cloud, the requirements, KA Check first (`sudo pacman -S kiro-atelier-check`),
+  "donate once and it stays yours" with new styles as free updates, and links to Ko-fi, the style post on GitHub and
+  the sneak-peek video. English plus all 13 languages. In Kiro News only: KiroTux systems show it too.
 
 ### Technical Details
+- Kiro Atelier item: translated by Claude, reviewed by Copilot (`gpt-6-luna`), 12 of its findings taken (articles,
+  agreement, "installer" for the built-in setup, link texts with a verb in Hungarian); same HTML tags in every
+  language. `check-news-releases.sh` passes (the title is no "KiroTux … vYY.MM.DD is out" item).
 - New `usr/share/icons/hicolor/scalable/apps/kiro-news.svg`: kiro-system-files' `kiro-green.svg` with its fill `#5ba837` → `#f57c00`. No theme ships a `kiro-news` icon, so the hicolor copy always wins. A first version (packaged as 26.11-08) used neo-candy's orange feed art.
 - `kiro-news.desktop`: `Icon=rss` → `Icon=kiro-news`. The PKGBUILD copies `usr/` as a whole, so nothing changes there; pacman's icon-cache hook picks the new file up.
 - Checked on the VM: `kiro-news` resolves to the hicolor file under neo-candy-icons, Surfn-Kiro and breeze.
@@ -13,6 +20,7 @@
 ### Files Modified
 - usr/share/icons/hicolor/scalable/apps/kiro-news.svg (new)
 - usr/share/applications/kiro-news.desktop
+- usr/share/kiro-news/feed.json (Kiro Atelier item)
 
 ## 2026.11.04
 
