@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.11.07
+
+### What Changed
+- **Kiro News keeps its own menu icon under every icon theme.** The launcher asked for the generic `rss` icon, so each theme drew its own feed symbol: an orange feed in neo-candy, something else in Surfn Kiro or Breeze. Kiro News now ships its icon itself: the orange feed symbol from neo-candy-icons, so it looks the same everywhere.
+
+### Technical Details
+- New `usr/share/icons/hicolor/scalable/apps/kiro-news.svg`: neo-candy's `akregator.svg` art (BeautyLine, GPL-3.0, same licence as kiro-news). No theme ships a `kiro-news` icon, so the hicolor copy always wins.
+- `kiro-news.desktop`: `Icon=rss` → `Icon=kiro-news`. The PKGBUILD copies `usr/` as a whole, so nothing changes there; pacman's icon-cache hook picks the new file up.
+- Checked on the VM: `kiro-news` resolves to the hicolor file under neo-candy-icons, Surfn-Kiro and breeze.
+
+### Files Modified
+- usr/share/icons/hicolor/scalable/apps/kiro-news.svg (new)
+- usr/share/applications/kiro-news.desktop
+
 ## 2026.11.04
 
 ### What Changed
