@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026.11.09
+
+### What Changed
+- **Release item: KiroTux Hyprland Caelestia v26.11.09 is out** (`2026-11-09-kirotux-hyprland-caelestia-v26-11-09`):
+  the seventh KiroTux edition, Hyprland with the Caelestia shell (credit to soramane and the caelestia-dots
+  contributors, GPL-3.0), what the premium app adds on this edition (window corners that follow the frame, one bar on
+  two screens), and links to Ko-fi, the website and the launch video (KIRO 215). English plus all 13 languages; the
+  same item in KiroTux News.
+
+### Technical Details
+- Translated by Claude from the impasto launch item (shared sentences kept word for word), reviewed by Copilot
+  (`gpt-6-luna` / `gpt-6.1-terra`). Taken: the "screen-off and lock times" item in de/nl/fr/it/ro/pt_BR (read as "a
+  search box per key"), the double colon in ru/tr, the possessive in ro. Left as in the impasto item: "is uit",
+  "Strg", the minimum-donation sentence. `check-news-releases.sh` passes (v26.11.09 matches the ISO).
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`, `CHANGELOG.md`
+
 ## 2026.11.07
 
 ### What Changed
