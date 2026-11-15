@@ -177,9 +177,15 @@ parse_json() {
     printf '%s\t%s\t%s\n' "$id" "$title" "$url"
 }
 
-# List up to N newest RSS items as "title<TAB>link<TAB>date" lines.
+# The news page's anchor for one item: source id + item id/guid, reduced to characters safe in an HTML id.
+# parse_json_items_html builds the same string in jq (gsub on the same set), so a click finds its item.
+anchor_id() {
+    printf 'n-%s-%s' "$1" "$(printf '%s' "$2" | tr -c 'A-Za-z0-9_-' '-')"
+}
+
+# List up to N newest RSS items as "title<TAB>link<TAB>date<TAB>guid" lines (guid as parse_rss picks it).
 parse_rss_items() {
-    local feed="$1" n="${2:-8}" items item title link date
+    local feed="$1" n="${2:-8}" items item title link date guid
     items="$(printf '%s' "$feed" | tr '\n' ' ' | grep -oP '<item>.*?</item>' | head -n "$n" || true)"
     [[ -z "$items" ]] && return 0
     while IFS= read -r item; do
@@ -187,8 +193,10 @@ parse_rss_items() {
         title="$(printf '%s' "$item" | grep -oP '(?<=<title>).*?(?=</title>)'     | head -1 | decode_entities || true)"
         link="$(printf '%s'  "$item" | grep -oP '(?<=<link>).*?(?=</link>)'       | head -1 | decode_entities || true)"
         date="$(printf '%s'  "$item" | grep -oP '(?<=<pubDate>).*?(?=</pubDate>)' | head -1 || true)"
+        guid="$(printf '%s'  "$item" | grep -oP '<guid[^>]*>\K[^<]*'              | head -1 || true)"
+        [[ -z "$guid" ]] && guid="$link"
         [[ -z "$title" ]] && continue
-        printf '%s\t%s\t%s\n' "$title" "$link" "$date"
+        printf '%s\t%s\t%s\t%s\n' "$title" "$link" "$date" "$guid"
     done <<< "$items"
 }
 
@@ -197,9 +205,9 @@ parse_rss_items() {
 # without rebuilding; only the starting language is visible. The summary may contain light inline HTML
 # (<strong>, <pre>): the feed ships in the package, so it's trusted content and not escaped.
 parse_json_items_html() {
-    local feed="$1" n="${2:-8}"
+    local feed="$1" n="${2:-8}" src="${3:-}"
     # shellcheck disable=SC2016  # jq variables, not shell ones
-    printf '%s' "$feed" | jq -r --argjson n "$n" --arg pick "$NEWS_PICK" '
+    printf '%s' "$feed" | jq -r --argjson n "$n" --arg pick "$NEWS_PICK" --arg src "$src" '
         def val($it; $l; $f): if $l == "en" then ($it[$f] // "") else ($it.i18n[$l][$f]? // "") end;
         def langs($it; $f): ["en"] + (($it.i18n // {}) | keys | map(select(. != "en")))
             | map(. as $l | select(val($it; $l; $f) != ""));
@@ -207,7 +215,8 @@ parse_json_items_html() {
         def hid($l; $s): if $l == $s then "" else " hidden" end;
         .items[:$n][] | select((.title // "") != "") | . as $it
         | shown($it; "title") as $st | shown($it; "summary") as $ss | langs($it; "summary") as $sl
-        | "<li><a class=\"tr\" href=\"\((.url // "") | @html)\">"
+        | (if (.id // "") != "" then " id=\"n-\($src)-\(.id | gsub("[^A-Za-z0-9_-]"; "-"))\"" else "" end) as $aid
+        | "<li\($aid)><a class=\"tr\" href=\"\((.url // "") | @html)\">"
           + (langs($it; "title") | map(. as $l
               | "<span data-l=\"\($l)\"\(hid($l; $st))>\(val($it; $l; "title") | @html)</span>") | join(""))
           + "</a><span class=\"date\">\((.date // "") | @html)</span>"
@@ -263,7 +272,7 @@ open_url() {
 }
 
 notify_item() {
-    local name="$1" title="$2" link="$3"
+    local name="$1" title="$2" link="$3" src="${4:-}" guid="${5:-}"
     command -v notify-send >/dev/null 2>&1 || { echo "${CYAN}${name}: ${title}${RESET}"; return 0; }
 
     # Fallbacks for every X11/Wayland daemon: the body is markup only where the daemon renders markup (elsewhere
@@ -288,7 +297,18 @@ notify_item() {
             action="$(timeout 600 notify-send --app-name="$name" --icon=dialog-information \
                 --urgency=normal --expire-time=60000 --action=default="$(_t "Open")" \
                 "$name" "${body_title}"$'\n'"${body_link}" 2>/dev/null || true)"
-            [[ -n "$action" ]] && open_url "$link"
+            # A click opens the local news page at this item (its full text, in the user's language); the
+            # website link only when the page can't be built or doesn't carry the item.
+            if [[ -n "$action" ]]; then
+                local anchor
+                anchor="$(anchor_id "$src" "$guid")"
+                if [[ -n "$src" ]] && build_news_page "$anchor" >/dev/null 2>&1 \
+                    && grep -qF "id=\"${anchor}\"" "$CACHE_DIR/news.html"; then
+                    open_url "$CACHE_DIR/news.html"
+                else
+                    open_url "$link"
+                fi
+            fi
             true
         ) &
     else
@@ -347,7 +367,7 @@ process_source() {
         return 0
     fi
 
-    notify_item "$name" "$title" "$link"
+    notify_item "$name" "$title" "$link" "$id" "$guid"
     printf '%s\n' "$guid" > "$state_file"
     log_success "[$id] notified: $title"
 }
@@ -368,15 +388,20 @@ cmd_poll() {
     wait
 }
 
-# Build a readable HTML page of recent items from every source and open it
-# in the browser. Toasts are ephemeral; this is the re-read view.
-cmd_show() {
+# Build a readable HTML page of recent items from every source in $CACHE_DIR/news.html. Toasts are ephemeral;
+# this is the re-read view. An optional anchor (anchor_id) marks the item the page scrolls to and highlights
+# (a toast click): written into the page, because a #fragment on a file:// link is lost by some openers.
+build_news_page() {
+    local focus="${1:-}" out tmp
     mkdir -p "$CACHE_DIR"
-    [[ -r "$CONFIG_FILE" ]] || { log_error "no config at $CONFIG_FILE"; exit 1; }
-    local out="$CACHE_DIR/news.html"
+    [[ -r "$CONFIG_FILE" ]] || { log_error "no config at $CONFIG_FILE"; return 1; }
+    out="$CACHE_DIR/news.html"
+    # Written aside and moved in, so two clicks at once never leave a half page.
+    tmp="$(mktemp "$CACHE_DIR/.news.XXXXXX")"
     {
-        printf '<!DOCTYPE html><html lang="%s" data-lang="%s"><head><meta charset="utf-8"><title>Kiro News</title>\n' \
-            "${NEWS_PICK//_/-}" "$NEWS_PICK"
+        printf '<!DOCTYPE html><html lang="%s" data-lang="%s" data-focus="%s"><head><meta charset="utf-8">' \
+            "${NEWS_PICK//_/-}" "$NEWS_PICK" "$focus"
+        printf '<title>Kiro News</title>\n'
         cat <<'HTML'
 <style>
 header{display:flex;justify-content:space-between;align-items:center;gap:1rem}
@@ -397,6 +422,7 @@ h1{background:linear-gradient(90deg,#89b4fa,#a6e3a1);-webkit-background-clip:tex
 h2{border-bottom:2px solid #45475a;padding-bottom:.3rem;margin-top:2rem;color:#89b4fa}
 ul.items{list-style:none;padding:0}
 ul.items>li{background:#181825;border:1px solid #313244;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0}
+ul.items>li.focus{border:2px solid #a6e3a1}
 a{color:#cdd6f4;text-decoration:none}a:hover{color:#a6e3a1}
 li>a{font-weight:700;font-size:1.08em}
 .date{display:block;color:#9399b2;font-size:.82em;margin-top:.2rem}.muted{color:#9399b2}
@@ -420,7 +446,7 @@ HTML
                 "$([[ "$l" == "$NEWS_PICK" ]] && printf ' aria-current="true"')" "${LANG_NAMES[$l]}"
         done
         printf '</div></details></header>\n'
-        local line id type url name verify _first body items title link date
+        local line id type url name verify _first body items title link date guid
         while IFS= read -r line; do
             line="${line%%#*}"
             line="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
@@ -438,7 +464,7 @@ HTML
             fi
             case "$type" in
                 rss)  items="$(parse_rss_items  "$body" 8)" ;;
-                json) items="$(parse_json_items_html "$body" 8)" ;;
+                json) items="$(parse_json_items_html "$body" 8 "$id")" ;;
                 *)    items="" ;;
             esac
             [[ -z "$items" ]] && { printf '<p class="muted tr">%s</p>\n' "$(_tall "No items.")"; continue; }
@@ -447,9 +473,10 @@ HTML
                 printf '%s\n' "$items"
             else
                 # RSS (Arch news) is upstream and stays English.
-                while IFS=$'\t' read -r title link date; do
+                while IFS=$'\t' read -r title link date guid; do
                     [[ -z "$title" ]] && continue
-                    printf '<li><a href="%s">%s</a><span class="date">%s</span></li>\n' \
+                    printf '<li id="%s"><a href="%s">%s</a><span class="date">%s</span></li>\n' \
+                        "$(anchor_id "$id" "$guid")" \
                         "$(printf '%s' "$link"  | html_escape)" \
                         "$(printf '%s' "$title" | html_escape)" \
                         "$(printf '%s' "$date"  | html_escape)"
@@ -483,13 +510,20 @@ m.addEventListener('click',function(e){
   try{localStorage.setItem(key,a.dataset.set);}catch(x){}
 });
 document.addEventListener('click',function(e){if(m.open&&!m.contains(e.target))m.open=false;});
+var f=d.dataset.focus&&document.getElementById(d.dataset.focus);
+if(f){f.classList.add('focus');f.scrollIntoView({block:'start'});}
 })();
 </script>
 </body></html>
 HTML
-    } > "$out"
+    } > "$tmp"
+    chmod 644 "$tmp"
+    mv -f "$tmp" "$out"
+}
 
-    open_url "$out" &
+cmd_show() {
+    build_news_page || exit 1
+    open_url "$CACHE_DIR/news.html" &
 }
 
 main() {

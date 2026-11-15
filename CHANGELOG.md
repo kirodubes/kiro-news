@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026.11.15
+
+### What Changed
+- **Clicking a news notification opens the news page at that item**, not the website (Erik: "why do we not end up on
+  the cache page news.html?"). The toast's click used to open the item's `url`, a web page that often doesn't carry
+  the item's text at all (premium updates point at kiroproject.be/kirotux.html). Now the click rebuilds the local
+  news page (`~/.cache/kiro-news/news.html`), which shows the whole item in the user's language, scrolls to that item
+  and outlines it in green. The item's title there still links to the website. The website opens only when the page
+  can't be built or doesn't carry the item. Works for every source: Kiro, KiroTux, KiroTux Drive and Arch news.
+
+### Technical Details
+- `cmd_show` split into `build_news_page [anchor]` (writes the page, no opening) and `cmd_show` (build + open), so
+  the click and `kiro-news show` share one builder. The page is written to a temp file and moved in, so two clicks at
+  once never leave half a page.
+- Every entry gets an `id`: `anchor_id <source> <item id or guid>` in bash (RSS, toast) and the same string in jq
+  (`gsub("[^A-Za-z0-9_-]"; "-")`) for JSON items. `parse_rss_items` now also returns the guid, picked as `parse_rss`
+  does. `notify_item` takes the source id and the guid; `process_source` passes them.
+- The item to show is written into the page (`<html data-focus>`) and the page's script scrolls to it, instead of a
+  `#fragment` on the `file://` link, which some openers drop.
+- Tested on hq with a scratch config (Kiro, KiroTux and Arch feeds): 24 of 24 entries anchored, the newest KiroTux
+  and Arch item each matched once; headless Chromium shows the focus class and the green outline; simulated clicks
+  open the page for a known item and the website for an unknown item or a caller without a source.
+
+### Files Modified
+- `usr/bin/kiro-news`, `CHANGELOG.md`
+
 ## 2026.11.09
 
 ### What Changed
