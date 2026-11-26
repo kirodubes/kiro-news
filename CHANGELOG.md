@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026.11.26
+
+### What Changed
+- **News item: a check before paru or yay builds an AUR package** (`2026-11-26-aur-check-paru-yay`): what Kiro's AUR
+  check shows (risky PKGBUILD lines, AUR history, the changes since the installed version), the colours and the y/N
+  stop on a danger finding, that it is a reading aid and not a guarantee, and that on an existing install switching it
+  on is up to the user: ATT (Pacman > AUR check) or one command for paru and one for yay. It also says pacman tells
+  them once in the terminal when it is off (kiro-system-files' new `kiro-aur-check-notice`).
+
+### Technical Details
+- English + 13 languages. Translated by Claude, reviewed by Copilot (`gpt-6-luna`): 19 findings, 6 taken (three
+  double negatives in nl/pt_BR/it, hu "További információ", zh_CN 、 between the level tags, and "go to Pacman > AUR
+  check" instead of "page Pacman, AUR check" in every language). Rejected: 13 "label translated" findings (the labels
+  are ATT's own `.po` translations of "AUR check", as the news rules require) and hu "Kirónak" (correct dative).
+- HTML tags and `<code>` commands checked identical in every language. Facts checked locally: skel lines in
+  kiro-dot-files (built 26.11-04), the ATT switch in archlinux-tweak-tool 26.11-39, the notice tested on picard.
+
+### Files Modified
+- usr/share/kiro-news/feed.json (AUR check item)
+
 ## 2026.11.15
 
 ### What Changed
