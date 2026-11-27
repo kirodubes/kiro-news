@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.11.27
+
+### What Changed
+- **News item: Kiro v26.12.01 is out** (`2026-11-27-kiro-v26-12-01`, links to the release card on kiroproject.be):
+  13 languages, Kiro's AUR check (`kiro-aur-check` with CachyOS's `cachyos-pi-scan`) second in the list, the CachyOS
+  kernel back with linux-lts, kiro-hwd, Surfn Kiro, the new Ohmychadwm Tweak Tool and ATT pages, the signed ISO, and
+  what reaches an existing install with `sudo pacman -Syu` versus a new install. Only finished features: the ATT
+  Hybrid graphics page is left out (its hardware test is still open).
+
+### Technical Details
+- `i18n` for all 13 languages, drafted by Copilot gpt-6-luna; page names taken from the Ohmychadwm Tweak Tool and ATT
+  `.po` files. Checked: same tags as the English, `v26.12.01` in every title and summary, product names intact, no
+  long dashes. Dutch and German wording fixed by hand (page list, German genitive "Kiros").
+
+### Files Modified
+- `usr/share/kiro-news/feed.json`, `CHANGELOG.md`
+
 ## 2026.11.26
 
 ### What Changed
